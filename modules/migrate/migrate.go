@@ -51,7 +51,7 @@ func (migrator Migrator) Migrate() error {
 	lastRunningMigration := migrator.getLastMigrationID()
 	begin := false
 	var err error
-	migrated := make([]string, 0)
+	var migrated []interface{}
 
 	for _, m := range migrator.Migrations {
 
@@ -70,13 +70,12 @@ func (migrator Migrator) Migrate() error {
 		if err != nil {
 			break
 		}
-		migrated = append(migrated, m.ID)
+		migrated = append(migrated, []string{m.ID})
 		logger.Infof("Success run migration file with id: %s", m.ID)
 		lastRunningMigration = m.ID
 	}
 	migratedLen := len(migrated)
-
-	targetLoop := migratedLen - 1
+	targetLoopLen := migratedLen - 1
 	if migratedLen > 0 {
 		var insertIdsStmt bytes.Buffer
 		insertIdsStmt.WriteString("insert into ")
@@ -84,12 +83,12 @@ func (migrator Migrator) Migrate() error {
 		insertIdsStmt.WriteString(" (id) VALUES")
 		for idx := range migrated {
 			insertIdsStmt.WriteString("(?)")
-			if targetLoop != idx {
+			if targetLoopLen != idx {
 				insertIdsStmt.WriteString(",")
 			}
 		}
 
-		migrator.Engine.Exec(insertIdsStmt.String(), migrated)
+		migrator.Engine.Exec(insertIdsStmt.String(), migrated...)
 	}
 
 	return err
@@ -135,7 +134,7 @@ func (migrator Migrator) getLastMigrationID() string {
 		ID string `xorm:"id"`
 	}{}
 	migrator.Engine.Raw(
-		"select id from " + migrator.Options.TableName).Scan(result)
+		"select id from " + migrator.Options.TableName).Limit(1).Order("id desc").Scan(result)
 
 	return result.ID
 }
