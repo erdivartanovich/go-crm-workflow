@@ -1,0 +1,8 @@
+[database]
+DRIVER = mysql
+HOST = 127.0.0.1:3306
+NAME = workflow
+USER = homestead
+PASSWORD = secret
+CHARSET = utf8
+DEBUG = true
