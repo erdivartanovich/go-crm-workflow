@@ -52,7 +52,9 @@ func (migrator Migrator) Migrate() error {
 	begin := false
 	var err error
 	migrated := make([]string, 0)
+
 	for _, m := range migrator.Migrations {
+
 		if lastRunningMigration == "" {
 			begin = true
 		}

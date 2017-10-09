@@ -11,7 +11,6 @@ var (
 		ID: "1507565382",
 		Migrate: func(tx *gorm.DB) error {
 			tx.CreateTable(&workflow.Workflows{})
-
 			return nil
 		},
 		Rollback: func(tx *gorm.DB) error {

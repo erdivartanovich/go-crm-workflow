@@ -38,8 +38,7 @@ func RollBack() error {
 
 func Create(name string) error {
 	id := generateMigrationID()
-	filename := generateSqlFilename(name, id)
-	createMigrationScript(filename, id)
+	createMigrationScript(name, id)
 
 	return nil
 }
@@ -50,13 +49,14 @@ func generateMigrationID() string {
 }
 
 func generateSqlFilename(name string, id string) string {
-	return name + "_" + id
+	return "./migrations/" + id + "_" + name + ".go"
 }
 
 func createMigrationScript(name string, id string) {
-	content := strings.Replace(template, "{{name}}", name, 1)
+	content := strings.Replace(template, "{{name}}", name+"_"+id, 1)
 	content = strings.Replace(content, "{{id}}", id, 1)
-	fs.FilePutContent("./migrations/"+name+".go", content)
+	filename := generateSqlFilename(name, id)
+	fs.FilePutContent(filename, content)
 }
 
 var template = `package migrations
@@ -64,7 +64,6 @@ var template = `package migrations
 import (
     "github.com/jinzhu/gorm"
     "github.com/kwri/go-workflow/modules/migrate"
-
 )
 
 var (
