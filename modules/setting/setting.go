@@ -19,8 +19,8 @@ type DatabaseConfig struct {
 
 var (
 	//ConfigFile  configuration file path
-	ConfigFile string
-	Db         = new(DatabaseConfig)
+	ConfigFile string = "./config.ini.example"
+	Db                = &DatabaseConfig{}
 )
 
 func (db DatabaseConfig) GetDataSourceName() string {
@@ -51,6 +51,7 @@ func (db DatabaseConfig) GetDataSourceName() string {
 
 //Initialize Initialize configuration
 func Initialize() error {
+
 	path, err := BasePath()
 
 	if err != nil {
@@ -76,5 +77,6 @@ func Initialize() error {
 
 func BasePath() (string, error) {
 	path, err := filepath.Abs("./")
+
 	return path, err
 }

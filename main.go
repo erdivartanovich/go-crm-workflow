@@ -14,6 +14,8 @@ func main() {
 		&cmd.CmdApi,
 		&cmd.CmdJob,
 		&cmd.CmdMigrate,
+		&cmd.CmdMakeService,
+		&cmd.CmdDebug,
 	}
 	app := cli.App{
 		Name:     "KW Workflow",

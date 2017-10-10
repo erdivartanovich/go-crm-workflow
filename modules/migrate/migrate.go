@@ -134,7 +134,10 @@ func (migrator Migrator) getLastMigrationID() string {
 		ID string `xorm:"id"`
 	}{}
 	migrator.Engine.Raw(
-		"select id from " + migrator.Options.TableName).Limit(1).Order("id desc").Scan(result)
+		"select id from " + migrator.Options.TableName).
+		Limit(1).
+		Order("id desc").
+		Scan(result)
 
 	return result.ID
 }

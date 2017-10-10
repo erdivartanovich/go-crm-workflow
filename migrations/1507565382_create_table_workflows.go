@@ -10,11 +10,11 @@ var (
 	create_table_workflows_1507565382 = migrate.Migration{
 		ID: "1507565382",
 		Migrate: func(tx *gorm.DB) error {
-			tx.CreateTable(&workflow.Workflows{})
+			tx.CreateTable(&workflow.Workflow{})
 			return nil
 		},
 		Rollback: func(tx *gorm.DB) error {
-			tx.DropTable(&workflow.Workflows{})
+			tx.DropTableIfExists(&workflow.Workflow{})
 			return nil
 		},
 	}

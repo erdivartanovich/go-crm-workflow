@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/kwri/go-workflow/modules/logger"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -32,5 +34,10 @@ var (
 func runApiService(ctx *cli.Context) error {
 	logger.Initialize("api")
 	err := defaultAction(ctx)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	return err
 }

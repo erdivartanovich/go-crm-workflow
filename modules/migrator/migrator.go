@@ -1,23 +1,25 @@
 package migrator
 
 import (
+	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
 	m "github.com/kwri/go-workflow/migrations"
 	"github.com/kwri/go-workflow/modules/db"
 	"github.com/kwri/go-workflow/modules/fs"
-	"github.com/kwri/go-workflow/modules/logger"
 	"github.com/kwri/go-workflow/modules/migrate"
 )
 
 func Migrate() error {
-	engine := db.Engine
+	engine, err := db.NewEngine()
+	if err != nil {
+		return err
+	}
 	defer engine.Close()
 
-	if err := engine.DB().Ping(); err != nil {
-		logger.Fatal(err)
+	if err = engine.DB().Ping(); err != nil {
+		return err
 	}
 
 	m := migrate.New(engine, migrate.DefaultOptions, m.Migrations)
@@ -25,11 +27,15 @@ func Migrate() error {
 }
 
 func RollBack() error {
-	engine := db.Engine
+	engine, err := db.NewEngine()
+
+	if err != nil {
+		return err
+	}
 	defer engine.Close()
-	var err error
+
 	if err = engine.DB().Ping(); err != nil {
-		logger.Fatal(err)
+		return err
 	}
 
 	m := migrate.New(engine, migrate.DefaultOptions, m.Migrations)
@@ -53,8 +59,7 @@ func generateSqlFilename(name string, id string) string {
 }
 
 func createMigrationScript(name string, id string) {
-	content := strings.Replace(template, "{{name}}", name+"_"+id, 1)
-	content = strings.Replace(content, "{{id}}", id, 1)
+	content := fmt.Sprintf(template, name+"_"+id, id)
 	filename := generateSqlFilename(name, id)
 	fs.FilePutContent(filename, content)
 }
@@ -67,8 +72,8 @@ import (
 )
 
 var (
-	{{name}} = migrate.Migration{
-        ID: "{{id}}",
+	%s = migrate.Migration{
+        ID: "%s",
         Migrate: func(tx *gorm.DB) error {
             // Write your migration script here
             return nil

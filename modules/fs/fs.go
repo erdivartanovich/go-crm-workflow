@@ -17,6 +17,10 @@ func OpenFile(name string) (*os.File, error) {
 	return os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 }
 
+func CreateDirectory(name string) error {
+	return os.Mkdir(name, 0755)
+}
+
 func CreateFile(name string) error {
 	fo, err := os.Create(name)
 	if err != nil {
