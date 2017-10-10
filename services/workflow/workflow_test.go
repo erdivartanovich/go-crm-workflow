@@ -53,7 +53,6 @@ func TestBrowse(t *testing.T) {
 	result, err := service.Browse(a)
 	assert.Nil(t, err, "Error is nil")
 	assert.NotEmpty(t, result, "Data should not empty")
-	fmt.Println(result)
 }
 
 func TestAddWorkflow(t *testing.T) {
