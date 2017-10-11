@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/kwri/go-workflow/api"
 	"github.com/kwri/go-workflow/modules/logger"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -38,6 +39,6 @@ func runApiService(ctx *cli.Context) error {
 	if err != nil {
 		fmt.Println(err)
 	}
-
+	api.RegisterRoute()
 	return err
 }

@@ -70,7 +70,7 @@ func (repo *WorkflowRepostitory) Delete(workflow Workflow) (*Workflow, error) {
 		repo.db.Close()
 	}()
 	in := &workflow
-	if in.ID == "" {
+	if len(in.ID) == 0 {
 		return nil, errors.New("You need to set ID of deleted workflow")
 	}
 	err := repo.prepareDb().Delete(&in).Error

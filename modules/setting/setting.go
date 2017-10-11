@@ -20,7 +20,12 @@ type DatabaseConfig struct {
 var (
 	//ConfigFile  configuration file path
 	ConfigFile string = "./config.ini.example"
-	Db                = &DatabaseConfig{}
+	Config            = &struct {
+		ApiPort string `ini:"API_PORT"`
+	}{
+		ApiPort: ":8080",
+	}
+	Db = &DatabaseConfig{}
 )
 
 func (db DatabaseConfig) GetDataSourceName() string {
@@ -61,7 +66,7 @@ func Initialize() error {
 	path = path + "/" + ConfigFile
 
 	cfg, err := ini.Load(path)
-
+	err = cfg.Section("application").MapTo(Config)
 	if err != nil {
 		return err
 	}

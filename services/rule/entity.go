@@ -8,8 +8,8 @@ import (
 )
 
 type Rule struct {
-	ID         string    `sql:"type:varchar(36);primary_key"`
-	WorkflowID string    `gorm:"varchar(36);index"`
+	ID         []byte    `gorm:"type:binary(16);primary_key"`
+	WorkflowID []byte    `gorm:"type:binary(16);index"`
 	UserID     uint64    `gorm:"unsigned;unique_index:rules_name_user_id"`
 	Name       string    `gorm:"not null;unique_index:rules_name_user_id"`
 	CreatedAt  time.Time `gorm:"default:current_timestamp"`
@@ -18,6 +18,11 @@ type Rule struct {
 }
 
 func (r *Rule) BeforeCreate(scope *gorm.Scope) error {
-	scope.SetColumn("ID", uuid.NewV4().String())
-	return nil
+	uuid, err := uuid.NewV4().MarshalBinary()
+	scope.SetColumn("ID", uuid)
+	return err
+}
+
+func (rule *Rule) GetKey() string {
+	return string(rule.ID[:])
 }

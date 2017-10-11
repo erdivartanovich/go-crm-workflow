@@ -9,7 +9,7 @@ import (
 )
 
 type Action struct {
-	ID          string    `sql:"type:varchar(36);primary_key"`
+	ID          []byte    `gorm:"type:binary(16);primary_key"`
 	UserID      uint64    `gorm:"unsigned user_id;unique_index:actions_name_user_id;index"`
 	TaskID      string    `sql:"type:varchar(36);index"`
 	Name        string    `gorm:"not null;unique_index:actions_name_user_id"`
@@ -23,8 +23,9 @@ type Action struct {
 }
 
 func (r *Action) BeforeCreate(scope *gorm.Scope) error {
-	scope.SetColumn("ID", uuid.NewV4().String())
-	return nil
+	uuid, err := uuid.NewV4().MarshalBinary()
+	scope.SetColumn("ID", uuid)
+	return err
 }
 
 func (action *Action) GetValue() map[interface{}]interface{} {
@@ -32,4 +33,8 @@ func (action *Action) GetValue() map[interface{}]interface{} {
 	data := []byte(action.Value)
 	json.Unmarshal(data, &v)
 	return v
+}
+
+func (action *Action) GetKey() string {
+	return string(action.ID[:])
 }
