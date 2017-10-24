@@ -21,9 +21,12 @@ var (
 	//ConfigFile  configuration file path
 	ConfigFile string = "./config.ini.example"
 	Config            = &struct {
-		ApiPort string `ini:"API_PORT"`
+		ApiHost    string `ini:"API_HOST"`
+		ApiPort    string `ini:"API_PORT"`
+		TimeFormat string `ini:"TIME_FORMAT"`
 	}{
-		ApiPort: ":8080",
+		ApiPort:    ":8080",
+		TimeFormat: "2006-01-02 15:04:05",
 	}
 	Db = &DatabaseConfig{}
 )

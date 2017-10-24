@@ -28,6 +28,7 @@ func setup() {
 
 func shutdown() {
 	service.Repo.db.Rollback()
+	db.Engine.Close()
 }
 
 func seedTestData() {

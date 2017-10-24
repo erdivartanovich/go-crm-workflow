@@ -25,6 +25,7 @@ func main() {
 	}
 
 	app.Flags = append(app.Flags, []cli.Flag{}...)
+
 	err := app.Run(os.Args)
 
 	if err != nil {

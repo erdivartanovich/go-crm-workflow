@@ -7,7 +7,7 @@ type WorkflowService struct {
 type SearchAdapter struct {
 }
 
-func (service *WorkflowService) Browse(adapter SearchAdapter) (*[]Workflow, error) {
+func (service *WorkflowService) Browse(adapter SearchAdapter) ([]*Workflow, error) {
 	return service.Repo.SetAdapter(adapter).Find()
 }
 

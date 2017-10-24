@@ -1,22 +1,22 @@
 package workflow
 
 import (
-	"encoding/json"
 	"time"
 
+	"github.com/google/jsonapi"
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 )
 
 type Workflow struct {
-	ID          []byte     `gorm:"type:binary(16);primary_key" json:"id"`
-	UserID      uint64     `gorm:"unsigned;unique_index:workflows_name_user_id;index;not null"  jsonapi:"attr,user_id"`
-	Name        string     `gorm:"unique_index:workflows_name_user_id;not null"  jsonapi:"attr,name"`
-	IsShared    bool       `gorm:"not null;default:0" jsonapi:"attr,is_shared"`
-	IsActivated bool       `gorm:"not null;default:0" jsonapi:"attr,is_activated"`
-	CreatedAt   time.Time  `gorm:"default:current_timestamp" jsonapi:"attr,created_at"`
-	UpdatedAt   time.Time  `gorm:"default:current_timestamp on update current_timestamp" jsonapi:"attr,updated_at"`
-	DeletedAt   *time.Time `jsonapi:"attr,deleted_at"`
+	ID          []byte     `gorm:"type:binary(16);primary_key" json:"-"`
+	UserID      uint64     `gorm:"unsigned;unique_index:workflows_name_user_id;index;not null" json:"-"`
+	Name        string     `gorm:"unique_index:workflows_name_user_id;not null" json:"name" json:"name"`
+	IsShared    bool       `gorm:"not null;default:0" json:"is_shared"`
+	IsActivated bool       `gorm:"not null;default:0" json:"is_activated"`
+	CreatedAt   time.Time  `gorm:"default:current_timestamp" json:"created_at"`
+	UpdatedAt   time.Time  `gorm:"default:current_timestamp on update current_timestamp" json:"updated_at"`
+	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
 }
 
 func (w *Workflow) BeforeCreate(scope *gorm.Scope) error {
@@ -25,23 +25,21 @@ func (w *Workflow) BeforeCreate(scope *gorm.Scope) error {
 	return err
 }
 
-func (workflow *Workflow) GetKey() string {
-	return string(workflow.ID[:])
-}
-
-func (workflow *Workflow) MarshalJSON() ([]byte, error) {
+func (workflow *Workflow) GetID() string {
 	id := &uuid.UUID{}
 	copy(id[:], workflow.ID)
-	type Alias Workflow
-	return json.Marshal(&struct {
-		ID string `json:"id"`
-		*Alias
-	}{
-		ID:    id.String(),
-		Alias: (*Alias)(workflow),
-	})
+	return id.String()
 }
 
-func (workflow *Workflow) UnmarshalJSON() ([]byte, error) {
+func (workflow *Workflow) UnmarshalUUIDString(id string) {
+	uuid := &uuid.UUID{}
+	uuid.UnmarshalText([]byte(id))
+	binid, _ := uuid.MarshalBinary()
+	workflow.ID = binid
+}
 
+func (workflow *Workflow) GetCustomLinks(link string) jsonapi.Links {
+	links := make(jsonapi.Links)
+	links["current"] = link
+	return links
 }

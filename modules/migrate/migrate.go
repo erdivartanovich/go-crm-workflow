@@ -13,6 +13,11 @@ var (
 	}
 )
 
+type MigrationTable struct {
+	ID        string `gorm:"id"`
+	tablename string `gorm:"-"`
+}
+
 type Migration struct {
 	ID       string
 	Migrate  MigrateFunc
@@ -48,9 +53,12 @@ func New(tx *gorm.DB, options Options, migrations []*Migration) Migratorable {
 }
 
 func (migrator Migrator) Migrate() error {
+	err := migrator.ensureMigrationTable()
+	if err != nil {
+		return err
+	}
 	lastRunningMigration := migrator.getLastMigrationID()
 	begin := false
-	var err error
 	var migrated []interface{}
 
 	for _, m := range migrator.Migrations {
@@ -68,7 +76,7 @@ func (migrator Migrator) Migrate() error {
 		logger.Infof("Migrating migration file with id: %s", m.ID)
 		err = m.Migrate(migrator.Engine)
 		if err != nil {
-			break
+			return err
 		}
 		migrated = append(migrated, []string{m.ID})
 		logger.Infof("Success run migration file with id: %s", m.ID)
@@ -130,9 +138,9 @@ func (migrator Migrator) Rollback() error {
 }
 
 func (migrator Migrator) getLastMigrationID() string {
-	var result = &struct {
-		ID string `xorm:"id"`
-	}{}
+	var result = &MigrationTable{
+		tablename: migrator.Options.TableName,
+	}
 	migrator.Engine.Raw(
 		"select id from " + migrator.Options.TableName).
 		Limit(1).
@@ -140,4 +148,16 @@ func (migrator Migrator) getLastMigrationID() string {
 		Scan(result)
 
 	return result.ID
+}
+
+func (migrator Migrator) ensureMigrationTable() error {
+	var result = &MigrationTable{
+		tablename: migrator.Options.TableName,
+	}
+
+	return migrator.Engine.AutoMigrate(result).Error
+}
+
+func (m *MigrationTable) TableName() string {
+	return m.tablename
 }

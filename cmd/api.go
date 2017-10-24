@@ -39,6 +39,6 @@ func runApiService(ctx *cli.Context) error {
 	if err != nil {
 		fmt.Println(err)
 	}
-	api.RegisterRoute()
+	api.RegisterApi()
 	return err
 }

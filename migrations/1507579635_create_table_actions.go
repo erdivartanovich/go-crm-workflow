@@ -10,12 +10,12 @@ var (
 	create_table_actions_1507579635 = migrate.Migration{
 		ID: "1507579635",
 		Migrate: func(tx *gorm.DB) error {
-			tx.CreateTable(&action.Action{})
-			return nil
+			err := tx.CreateTable(&action.Action{}).Error
+			return err
 		},
 		Rollback: func(tx *gorm.DB) error {
-			tx.DropTableIfExists(&action.Action{})
-			return nil
+			err := tx.DropTableIfExists(&action.Action{}).Error
+			return err
 		},
 	}
 )

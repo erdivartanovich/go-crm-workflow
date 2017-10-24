@@ -19,14 +19,11 @@ func (repo *WorkflowRepostitory) SetAdapter(adapter SearchAdapter) *WorkflowRepo
 	return repo
 }
 
-func (repo *WorkflowRepostitory) Find() (*[]Workflow, error) {
-	defer func() {
-		repo.db.Close()
-	}()
-	workflows := &[]Workflow{}
+func (repo *WorkflowRepostitory) Find() ([]*Workflow, error) {
+	workflows := &[]*Workflow{}
 	err := repo.prepareDb().Find(workflows).Error
 	repo.ResetInstance()
-	return workflows, err
+	return *workflows, err
 }
 
 func (repo *WorkflowRepostitory) Where(workflow Workflow) *WorkflowRepostitory {
@@ -35,9 +32,7 @@ func (repo *WorkflowRepostitory) Where(workflow Workflow) *WorkflowRepostitory {
 }
 
 func (repo *WorkflowRepostitory) First() (*Workflow, error) {
-	defer func() {
-		repo.db.Close()
-	}()
+
 	workflow := &Workflow{}
 	err := repo.prepareDb().First(workflow).Error
 	repo.ResetInstance()
@@ -45,9 +40,6 @@ func (repo *WorkflowRepostitory) First() (*Workflow, error) {
 }
 
 func (repo *WorkflowRepostitory) Update(workflow Workflow, payload Workflow) (*Workflow, error) {
-	defer func() {
-		repo.db.Close()
-	}()
 
 	err := repo.prepareDb().Model(&workflow).Update(payload).Error
 	repo.ResetInstance()
@@ -55,9 +47,6 @@ func (repo *WorkflowRepostitory) Update(workflow Workflow, payload Workflow) (*W
 }
 
 func (repo *WorkflowRepostitory) Insert(workflow Workflow) (*Workflow, error) {
-	defer func() {
-		repo.db.Close()
-	}()
 
 	in := &workflow
 	err := repo.prepareDb().Create(in).Error
@@ -66,9 +55,7 @@ func (repo *WorkflowRepostitory) Insert(workflow Workflow) (*Workflow, error) {
 }
 
 func (repo *WorkflowRepostitory) Delete(workflow Workflow) (*Workflow, error) {
-	defer func() {
-		repo.db.Close()
-	}()
+
 	in := &workflow
 	if len(in.ID) == 0 {
 		return nil, errors.New("You need to set ID of deleted workflow")
@@ -95,7 +82,7 @@ func (repo *WorkflowRepostitory) ResetInstance() {
 }
 
 func NewWorkflowRepository() *WorkflowRepostitory {
-	db, _ := db.NewEngine()
+	db := db.Engine
 	return &WorkflowRepostitory{
 		db:    db,
 		where: &stack.Stack{},

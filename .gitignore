@@ -1,3 +1,6 @@
+#ignore compiled script:
 main
 go-workflow
+
+#ignore config file
 config.ini

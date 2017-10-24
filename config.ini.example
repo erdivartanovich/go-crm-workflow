@@ -1,5 +1,8 @@
-[database]
+[application]
 API_PORT = :80
+TIME_FORMAT = 2006-01-02 15:04:05
+
+[database]
 DRIVER = mysql
 HOST = 127.0.0.1:3306
 NAME = workflow

@@ -11,7 +11,10 @@ var (
 		ID: "1507565382",
 		Migrate: func(tx *gorm.DB) error {
 
-			tx.CreateTable(&workflow.Workflow{})
+			err := tx.CreateTable(&workflow.Workflow{}).Error
+			if err != nil {
+				return err
+			}
 			seedData := []*workflow.Workflow{
 				{
 					Name:   "Mailchimp Discount Campaign",
@@ -24,7 +27,7 @@ var (
 			}
 			db := tx.Begin()
 			for _, data := range seedData {
-				err := db.Create(data).Error
+				err = db.Create(data).Error
 				if err != nil {
 					db.Rollback()
 					return err
@@ -35,8 +38,8 @@ var (
 			return nil
 		},
 		Rollback: func(tx *gorm.DB) error {
-			tx.DropTableIfExists(&workflow.Workflow{})
-			return nil
+			err := tx.DropTableIfExists(&workflow.Workflow{}).Error
+			return err
 		},
 	}
 )
