@@ -1,6 +1,7 @@
 package rule
 
 import (
+	"github.com/kwri/go-workflow/services/action"
 	"errors"
 	"fmt"
 
@@ -67,6 +68,15 @@ func (repo RuleRepostitory) Insert(rule Rule) (*Rule, error) {
 }
 
 func (repo RuleRepostitory) Delete(rule Rule) (*Rule, error) {
+	defer func() {
+		repo.db.Close()
+	}()
+	in := &rule
+	err := repo.db.Delete(in).Error
+	return in, err
+}
+
+func (repo RuleRepostitory) syncActions(rule Rule, actions ...action.Action) (*Rule, error) {
 	defer func() {
 		repo.db.Close()
 	}()

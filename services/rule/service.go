@@ -1,5 +1,9 @@
 package rule
 
+import (
+	"github.com/kwri/go-workflow/services/action"
+)
+
 type RuleService struct {
 }
 
@@ -26,6 +30,10 @@ func (service RuleService) Add(rule Rule) (*Rule, error) {
 
 func (service RuleService) Delete(rule Rule) (*Rule, error) {
 	return repo.Delete(rule)
+}
+
+func (service RuleService) syncActions(rule Rule, actions ...action.Action) (*Rule, error) {
+	return repo.syncActions(rule, actions...)
 }
 
 func NewRuleService() RuleService {
