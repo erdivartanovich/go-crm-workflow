@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	paginator "github.com/kwri/go-workflow/gorm-paginator"
 	"github.com/manyminds/api2go/jsonapi"
 )
 
@@ -30,6 +31,11 @@ func (res *ApiResponder) StatusCode() int {
 }
 
 func (res *ApiResponder) WriteResponse(w http.ResponseWriter, err error, r *http.Request) {
+	if err != nil {
+		w.WriteHeader(404)
+		w.Write([]byte(err.Error()))
+		return
+	}
 	headers := res.Headers()
 	if len(headers) > 0 {
 		for key, header := range headers {
@@ -38,28 +44,39 @@ func (res *ApiResponder) WriteResponse(w http.ResponseWriter, err error, r *http
 	}
 
 	w.WriteHeader(res.StatusCode())
-	document, err := jsonapi.MarshalToStruct(res.Data, &ServerInfo{
+	items := res.Data
+	paginator, isPaginator := items.(*paginator.LengthAwareOffsetPaginator)
+
+	if isPaginator {
+		items = paginator.Items()
+	}
+
+	document, err := jsonapi.MarshalToStruct(items, &ServerInfo{
 		baseUrl: r.URL.String(),
 		prefix:  r.Host,
 	})
 
 	if err != nil {
 		w.Write([]byte(err.Error()))
+		return
 	}
 
 	if document.Links == nil {
 		document.Links = jsonapi.Links{}
+	}
+
+	if isPaginator {
 		document.Links["first"] = jsonapi.Link{
-			Href: fmt.Sprintf("%s%s", r.URL.Host, r.URL.String()),
+			Href: paginator.URL(0),
 		}
 		document.Links["last"] = jsonapi.Link{
-			Href: r.URL.String(),
+			Href: paginator.LastPageURL(),
 		}
 		document.Links["prev"] = jsonapi.Link{
-			Href: r.URL.String(),
+			Href: paginator.PreviousPageURL(),
 		}
 		document.Links["next"] = jsonapi.Link{
-			Href: r.URL.String(),
+			Href: paginator.NextPageURL(),
 		}
 	}
 

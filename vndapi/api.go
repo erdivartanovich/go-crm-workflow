@@ -11,13 +11,27 @@ type Api struct {
 
 func (a *Api) Resource(name string, ctrl ResourceCtrl, middlewares ...Middleware) {
 	path := fmt.Sprintf("/%s/%s", a.versionPath, name)
+	withIdPath := fmt.Sprintf("%s/{id:[0-9a-zA-Z-]+}", path)
+	bulkResourceHandler := handleBulkResourceServiceRoute(ctrl, middlewares...)
+	withIdResourceHandler := handleResourceServiceRoute(ctrl, middlewares...)
 	router.HandleFunc(
 		path,
-		handleBulkResourceServiceRoute(path, ctrl, middlewares...),
+		bulkResourceHandler,
 	).Methods(http.MethodGet, http.MethodPost, http.MethodPatch)
+
 	router.HandleFunc(
-		fmt.Sprintf("%s/:id", path),
-		handleResourceServiceRoute(path, ctrl, middlewares...),
+		withIdPath,
+		withIdResourceHandler,
+	).Methods(http.MethodGet, http.MethodPost, http.MethodPatch)
+
+	router.HandleFunc(
+		fmt.Sprintf("%s/", path),
+		bulkResourceHandler,
+	).Methods(http.MethodGet, http.MethodPost, http.MethodPatch)
+
+	router.HandleFunc(
+		fmt.Sprintf("%s/", withIdPath),
+		withIdResourceHandler,
 	).Methods(http.MethodGet, http.MethodPost, http.MethodPatch)
 
 }

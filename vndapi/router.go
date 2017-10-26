@@ -12,7 +12,7 @@ func handleResourceRoute(path string, ctrl ResourceCtrl, middlewares ...Middlewa
 
 }
 
-func handleBulkResourceServiceRoute(path string, ctrl ResourceCtrl, middlewares ...Middleware) http.HandlerFunc {
+func handleBulkResourceServiceRoute(ctrl ResourceCtrl, middlewares ...Middleware) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var (
 			p   Responder
@@ -33,14 +33,17 @@ func handleBulkResourceServiceRoute(path string, ctrl ResourceCtrl, middlewares 
 	}
 }
 
-func handleResourceServiceRoute(path string, ctrl ResourceCtrl, middlewares ...Middleware) http.HandlerFunc {
+func handleResourceServiceRoute(ctrl ResourceCtrl, middlewares ...Middleware) http.HandlerFunc {
+
 	return func(w http.ResponseWriter, r *http.Request) {
+
 		var (
 			p   Responder
 			err error
 		)
 		vars := mux.Vars(r)
 		id := vars["id"]
+
 		switch r.Method {
 		case http.MethodGet:
 			p, err = ctrl.Read(id, r)
