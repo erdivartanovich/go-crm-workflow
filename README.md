@@ -30,3 +30,7 @@ Why Go?
 - Go is programming language that created for concurrency programming
 - Go has strong standard library
 - Go compiled to native language and can run on machine without JVM
+
+## About each of the Services
+
+- [About Rule Service](https://github.com/KWRI/go-workflow/wiki/About-Rule-Service)
