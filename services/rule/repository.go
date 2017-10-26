@@ -80,8 +80,12 @@ func (repo RuleRepostitory) syncActions(rule Rule, actions ...action.Action) (*R
 	defer func() {
 		repo.db.Close()
 	}()
-	in := &rule
-	err := repo.db.Delete(in).Error
+	// get the action ids
+	var ids [][]byte
+	for _, action := range(actions) {
+		ids = append(ids, action.ID)
+	}
+	repo.db.Model(&rule).Related(&actions, "actions")
 	return in, err
 }
 
