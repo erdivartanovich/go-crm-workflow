@@ -1,96 +1,86 @@
 package rule
 
 import (
-	"github.com/kwri/go-workflow/services/action"
 	"errors"
-	"fmt"
-
+	"github.com/golang-collections/collections/stack"
 	"github.com/jinzhu/gorm"
 	"github.com/kwri/go-workflow/modules/db"
 )
 
-type RuleRepostitory struct {
+type RuleRepository struct {
 	db      *gorm.DB
 	adapter *SearchAdapter
+	where   *stack.Stack
 }
 
-func (repo RuleRepostitory) SetAdapter(adapter *SearchAdapter) RuleRepostitory {
-	repo.adapter = adapter
+func (repo *RuleRepository) SetAdapter(adapter SearchAdapter) *RuleRepository {
+	repo.adapter = &adapter
 	return repo
 }
 
-func (repo RuleRepostitory) Find() (*[]Rule, error) {
-	defer func() {
-		repo.db.Close()
-	}()
-	rules := &[]Rule{}
-	err := repo.db.Find(rules).Error
-	return rules, err
+func (repo *RuleRepository) Find() ([]*Rule, error) {
+	rules := &[]*Rule{}
+	err := repo.prepareDb().Find(rules).Error
+	repo.ResetInstance()
+	return *rules, err
 }
 
-func (repo RuleRepostitory) Where(rule Rule) RuleRepostitory {
-	repo.db.Where(rule)
+func (repo *RuleRepository) Where(rule Rule) *RuleRepository {
+	repo.where.Push(&rule)
 	return repo
 }
 
-func (repo RuleRepostitory) First() (*Rule, error) {
-	defer func() {
-		repo.db.Close()
-	}()
+func (repo *RuleRepository) First() (*Rule, error) {
 	rule := &Rule{}
-	err := repo.db.First(rule).Error
+	err := repo.prepareDb().First(rule).Error
+	repo.ResetInstance()
 	return rule, err
 }
 
-func (repo RuleRepostitory) Update(rule Rule) (*Rule, error) {
-	defer func() {
-		repo.db.Close()
-	}()
-	in := &Rule{}
-	err := repo.db.Save(in).Error
-	return in, err
+func (repo *RuleRepository) Update(rule Rule, payload Rule) (*Rule, error) {
+	err := repo.prepareDb().Model(&rule).Update(payload).Error
+	repo.ResetInstance()
+	return &rule, err
 }
 
-func (repo RuleRepostitory) Insert(rule Rule) (*Rule, error) {
-	defer func() {
-		repo.db.Close()
-	}()
-
-	if !repo.db.NewRecord(rule) {
-		return nil, errors.New(fmt.Sprintf(
-			"User with id %s is exists on database",
-			rule.ID,
-		))
-	}
+func (repo *RuleRepository) Insert(rule Rule) (*Rule, error) {
 	in := &rule
-	err := repo.db.Create(in).Error
+	err := repo.prepareDb().Create(in).Error
+	repo.ResetInstance()
 	return in, err
 }
 
-func (repo RuleRepostitory) Delete(rule Rule) (*Rule, error) {
-	defer func() {
-		repo.db.Close()
-	}()
+func (repo *RuleRepository) Delete(rule Rule) (*Rule, error) {
 	in := &rule
-	err := repo.db.Delete(in).Error
-	return in, err
-}
-
-func (repo RuleRepostitory) syncActions(rule Rule, actions ...action.Action) (*Rule, error) {
-	defer func() {
-		repo.db.Close()
-	}()
-	// get the action ids
-	var ids [][]byte
-	for _, action := range(actions) {
-		ids = append(ids, action.ID)
+	if len(in.ID) == 0 {
+		return nil, errors.New("You need to set ID of deleted rule")
 	}
-	repo.db.Model(&rule).Related(&actions, "actions")
+	err := repo.prepareDb().Delete(&in).Error
+	if err != nil {
+		return nil, err
+	}
+	err = repo.db.Unscoped().Find(&in).Error
+	repo.ResetInstance()
 	return in, err
 }
 
-func NewRuleRepository() *RuleRepostitory {
-	return &RuleRepostitory{
-		db: db.Engine,
+func (repo *RuleRepository) prepareDb() *gorm.DB {
+	count := repo.where.Len()
+	tx := repo.db
+	for i := 0; i < count; i++ {
+		tx = tx.Where(repo.where.Pop())
+	}
+	return tx
+}
+
+func (repo *RuleRepository) ResetInstance() {
+	repo.adapter = nil
+}
+
+func NewRuleRepository() *RuleRepository {
+	db := db.Engine
+	return &RuleRepository{
+		db:    db,
+		where: &stack.Stack{},
 	}
 }
