@@ -27,6 +27,10 @@ func (service *WorkflowService) Delete(workflow Workflow) (*Workflow, error) {
 	return service.Repo.Delete(workflow)
 }
 
+func (service *WorkflowService) Count(adapter SearchAdapter) (int, error) {
+	return service.Repo.SetAdapter(adapter).Count()
+}
+
 func NewWorkflowService() *WorkflowService {
 	return &WorkflowService{
 		Repo: NewWorkflowRepository(),
