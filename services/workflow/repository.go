@@ -81,6 +81,12 @@ func (repo *WorkflowRepostitory) ResetInstance() {
 	repo.adapter = nil
 }
 
+func (repo *WorkflowRepostitory) Count() (int, error) {
+	count := 0
+	err := repo.prepareDb().Model(&Workflow{}).Count(&count).Error
+	return count, err
+}
+
 func NewWorkflowRepository() *WorkflowRepostitory {
 	db := db.Engine
 	return &WorkflowRepostitory{
