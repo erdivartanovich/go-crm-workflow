@@ -46,6 +46,18 @@ func (repo *WorkflowRepostitory) Update(workflow Workflow, payload Workflow) (*W
 	return &workflow, err
 }
 
+func (repo *WorkflowRepostitory) Replace(workflow Workflow, payload Workflow) (*Workflow, error) {
+	wk := &workflow
+	db := repo.prepareDb()
+	db.First(wk)
+	wk.IsActivated = payload.IsActivated
+	wk.IsShared = payload.IsShared
+	wk.Name = payload.Name
+	err := db.Save(wk).Error
+	repo.ResetInstance()
+	return wk, err
+}
+
 func (repo *WorkflowRepostitory) Insert(workflow Workflow) (*Workflow, error) {
 
 	in := &workflow
@@ -68,6 +80,7 @@ func (repo *WorkflowRepostitory) Delete(workflow Workflow) (*Workflow, error) {
 	repo.ResetInstance()
 	return in, err
 }
+
 func (repo *WorkflowRepostitory) prepareDb() *gorm.DB {
 	count := repo.where.Len()
 	tx := repo.db

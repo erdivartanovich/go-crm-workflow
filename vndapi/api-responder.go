@@ -31,6 +31,7 @@ func (res *ApiResponder) StatusCode() int {
 }
 
 func (res *ApiResponder) WriteResponse(w http.ResponseWriter, err error, r *http.Request) {
+
 	if err != nil {
 		w.WriteHeader(404)
 		w.Write([]byte(err.Error()))
@@ -81,8 +82,11 @@ func (res *ApiResponder) WriteResponse(w http.ResponseWriter, err error, r *http
 	}
 
 	data, err := json.Marshal(document)
+
 	if err != nil {
 		w.Write([]byte(err.Error()))
+
+		return
 	}
 
 	w.Write(data)

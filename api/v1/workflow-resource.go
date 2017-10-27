@@ -47,31 +47,44 @@ func (ctrl *workflowCtrl) Browse(r *http.Request) (api.Responder, error) {
 			offset = val
 		}
 	}
-	options := &paginator.Options{}
+	options := &paginator.Options{
+		QueryParameter: r.URL.Query(),
+		Path:           r.URL.Path,
+	}
 	paginator := paginator.NewLengthAwareOffsetPaginator(workflows, total, limit, offset, options)
 	respond := &api.ApiResponder{
-		Data:     paginator,
-		Hostname: "https://localhost:8001",
+		Data: paginator,
+		Code: 200,
 	}
 
 	return respond, err
 }
 
 func (ctrl *workflowCtrl) Read(id string, r *http.Request) (api.Responder, error) {
-
 	service := ctrl.service
 	payload := &workflow.Workflow{}
 	payload.UnmarshalUUIDString(id)
 	workflow, err := service.Read(*payload)
-	fmt.Println(err)
+
 	return &api.ApiResponder{
-		Data:     workflow,
-		Hostname: "https://localhost:8001",
+		Data: workflow,
+		Code: 200,
 	}, err
 }
 
 func (ctrl *workflowCtrl) Replace(id string, r *http.Request) (api.Responder, error) {
-	return nil, nil
+	wk := workflow.Workflow{}
+	wk.UnmarshalUUIDString(id)
+	// decoder := json.NewDecoder(r.Body)
+
+	payload := workflow.Workflow{}
+
+	updated, err := ctrl.service.Replace(wk, payload)
+	fmt.Println(r.Body)
+	return &api.ApiResponder{
+		Data: updated,
+		Code: 200,
+	}, err
 }
 
 func (ctrl *workflowCtrl) Edit(id string, r *http.Request) (api.Responder, error) {

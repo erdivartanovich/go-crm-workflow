@@ -16,7 +16,15 @@ func (service *WorkflowService) Read(workflow Workflow) (*Workflow, error) {
 }
 
 func (service *WorkflowService) Edit(workflow Workflow, payload Workflow) (*Workflow, error) {
-	return service.Repo.Update(workflow, payload)
+	wk, err := service.Read(workflow)
+	if err != nil {
+		return nil, err
+	}
+	return service.Repo.Update(*wk, payload)
+}
+
+func (service *WorkflowService) Replace(workflow Workflow, payload Workflow) (*Workflow, error) {
+	return service.Repo.Replace(workflow, payload)
 }
 
 func (service *WorkflowService) Add(workflow Workflow) (*Workflow, error) {

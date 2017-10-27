@@ -49,6 +49,7 @@ func handleResourceServiceRoute(ctrl ResourceCtrl, middlewares ...Middleware) ht
 			p, err = ctrl.Read(id, r)
 			break
 		case http.MethodPost:
+
 			p, err = ctrl.Replace(id, r)
 			break
 		case http.MethodPatch:
