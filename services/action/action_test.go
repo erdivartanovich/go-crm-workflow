@@ -54,3 +54,16 @@ func TestBrowse(t *testing.T) {
 	assert.Nil(t, err, "Error is nil")
 	assert.NotEmpty(t, result, "Data should not empty")
 }
+
+func TestAddAction(t *testing.T) {
+	model := Action{
+		Name: "test",
+		UserID: 1,
+	}
+
+	result, err := service.Add(model)
+
+	assert.Nil(t, err, "Error is nil")
+	assert.Equal(t, model.Name, result.Name, "It should be equal")
+	assert.NotEqual(t, model.ID, result.ID, "Result ID should have new value")
+}
