@@ -78,3 +78,15 @@ func TestReadAction(t *testing.T) {
 	assert.Equal(t, fixture.Name, result.Name, "it should be equal")
 	assert.Equal(t, fixture.ID, result.ID, "it should be equal")
 }
+
+func TestEditAction(t *testing.T) {
+	fixture := dbfixtures[0]
+	model := Action{
+		Name: "edited-test-action-seed-data",
+	}
+	result, err := service.Edit(*fixture, model)
+	assert.Nil(t, err, "Error is nil")
+	assert.NotEqual(t, fixture.Name, result.Name, "It should not be equal")
+	assert.Equal(t, model.Name, result.Name, "it should be equal")
+	assert.Equal(t, fixture.ID, result.ID, "It should be equal")
+}
