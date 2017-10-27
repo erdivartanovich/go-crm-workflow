@@ -1,13 +1,14 @@
 package v1
 
 import (
-	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 
 	paginator "github.com/kwri/go-workflow/gorm-paginator"
 	"github.com/kwri/go-workflow/services/workflow"
 	api "github.com/kwri/go-workflow/vndapi"
+	"github.com/manyminds/api2go/jsonapi"
 )
 
 type workflowCtrl struct {
@@ -75,12 +76,25 @@ func (ctrl *workflowCtrl) Read(id string, r *http.Request) (api.Responder, error
 func (ctrl *workflowCtrl) Replace(id string, r *http.Request) (api.Responder, error) {
 	wk := workflow.Workflow{}
 	wk.UnmarshalUUIDString(id)
-	// decoder := json.NewDecoder(r.Body)
-
 	payload := workflow.Workflow{}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	err = jsonapi.Unmarshal(body, &payload)
+	if err != nil {
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
 
 	updated, err := ctrl.service.Replace(wk, payload)
-	fmt.Println(r.Body)
+
 	return &api.ApiResponder{
 		Data: updated,
 		Code: 200,
