@@ -1,6 +1,9 @@
 package api
 
 import (
+	"bytes"
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -23,7 +26,22 @@ func handleBulkResourceServiceRoute(ctrl ResourceCtrl, middlewares ...Middleware
 			p, err = ctrl.Browse(r)
 			break
 		case http.MethodPost:
-			p, err = ctrl.BatchAdd(r)
+			type document struct {
+				Data interface{} `json:"data"`
+			}
+			buf, _ := ioutil.ReadAll(r.Body)
+			rdr1 := ioutil.NopCloser(bytes.NewBuffer(buf))
+			rdr2 := ioutil.NopCloser(bytes.NewBuffer(buf))
+			decoder := json.NewDecoder(rdr1)
+			r.Body = rdr2
+			doc := document{}
+			decoder.Decode(&doc)
+			_, ok := doc.Data.([]interface{})
+			if ok {
+				p, err = ctrl.BatchAdd(r)
+				break
+			}
+			p, err = ctrl.Add(r)
 			break
 		case http.MethodPatch:
 			p, err = ctrl.BatchEdit(r)
@@ -49,6 +67,7 @@ func handleResourceServiceRoute(ctrl ResourceCtrl, middlewares ...Middleware) ht
 			p, err = ctrl.Read(id, r)
 			break
 		case http.MethodPost:
+
 			p, err = ctrl.Replace(id, r)
 			break
 		case http.MethodPatch:

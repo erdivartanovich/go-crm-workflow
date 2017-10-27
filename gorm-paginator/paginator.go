@@ -79,6 +79,7 @@ func (p *LengthAwareOffsetPaginator) PreviousPageURL() string {
 	if prev < 0 {
 		return ""
 	}
+
 	return p.URL(prev)
 }
 

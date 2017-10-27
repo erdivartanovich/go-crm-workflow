@@ -15,8 +15,8 @@ func (a *Api) Resource(name string, ctrl ResourceCtrl, middlewares ...Middleware
 	bulkResourceHandler := handleBulkResourceServiceRoute(ctrl, middlewares...)
 	withIdResourceHandler := handleResourceServiceRoute(ctrl, middlewares...)
 	router.HandleFunc(
-		path,
-		bulkResourceHandler,
+		fmt.Sprintf("%s/", withIdPath),
+		withIdResourceHandler,
 	).Methods(http.MethodGet, http.MethodPost, http.MethodPatch)
 
 	router.HandleFunc(
@@ -30,8 +30,8 @@ func (a *Api) Resource(name string, ctrl ResourceCtrl, middlewares ...Middleware
 	).Methods(http.MethodGet, http.MethodPost, http.MethodPatch)
 
 	router.HandleFunc(
-		fmt.Sprintf("%s/", withIdPath),
-		withIdResourceHandler,
+		path,
+		bulkResourceHandler,
 	).Methods(http.MethodGet, http.MethodPost, http.MethodPatch)
 
 }
