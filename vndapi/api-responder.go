@@ -45,8 +45,9 @@ func (res *ApiResponder) WriteResponse(w http.ResponseWriter, err error, r *http
 	}
 
 	w.WriteHeader(res.StatusCode())
+
 	items := res.Data
-	paginator, isPaginator := items.(*paginator.LengthAwareOffsetPaginator)
+	paginator, isPaginator := items.(paginator.Paginator)
 
 	if isPaginator {
 		items = paginator.Items()
@@ -61,6 +62,21 @@ func (res *ApiResponder) WriteResponse(w http.ResponseWriter, err error, r *http
 		w.Write([]byte(err.Error()))
 		return
 	}
+
+	ensureDocumentLinks(document, paginator, isPaginator)
+	document.Meta = res.Metadata()
+	data, err := json.Marshal(document)
+
+	if err != nil {
+		w.Write([]byte(err.Error()))
+
+		return
+	}
+
+	w.Write(data)
+}
+
+func ensureDocumentLinks(document *jsonapi.Document, paginator paginator.Paginator, isPaginator bool) {
 
 	if document.Links == nil {
 		document.Links = jsonapi.Links{}
@@ -80,16 +96,6 @@ func (res *ApiResponder) WriteResponse(w http.ResponseWriter, err error, r *http
 			Href: paginator.NextPageURL(),
 		}
 	}
-
-	data, err := json.Marshal(document)
-
-	if err != nil {
-		w.Write([]byte(err.Error()))
-
-		return
-	}
-
-	w.Write(data)
 }
 
 type ServerInfo struct {

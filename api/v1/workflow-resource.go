@@ -24,7 +24,7 @@ func newWorkflowCtrl() *workflowCtrl {
 func (ctrl *workflowCtrl) Browse(r *http.Request) (api.Responder, error) {
 	service := ctrl.service
 	adapter := workflow.SearchAdapter{}
-	workflows, err := service.Browse(adapter)
+
 	total, err := service.Count(adapter)
 	if err != nil {
 		total = 0
@@ -52,6 +52,12 @@ func (ctrl *workflowCtrl) Browse(r *http.Request) (api.Responder, error) {
 		QueryParameter: r.URL.Query(),
 		Path:           r.URL.Path,
 	}
+	var workflows []*workflow.Workflow
+
+	if total > 0 {
+		workflows, err = service.Browse(adapter)
+	}
+
 	paginator := paginator.NewLengthAwareOffsetPaginator(workflows, total, limit, offset, options)
 	respond := &api.ApiResponder{
 		Data: paginator,
@@ -64,7 +70,7 @@ func (ctrl *workflowCtrl) Browse(r *http.Request) (api.Responder, error) {
 func (ctrl *workflowCtrl) Read(id string, r *http.Request) (api.Responder, error) {
 	service := ctrl.service
 	payload := &workflow.Workflow{}
-	payload.UnmarshalUUIDString(id)
+	payload.SetID(id)
 	workflow, err := service.Read(*payload)
 
 	return &api.ApiResponder{
@@ -75,7 +81,7 @@ func (ctrl *workflowCtrl) Read(id string, r *http.Request) (api.Responder, error
 
 func (ctrl *workflowCtrl) Replace(id string, r *http.Request) (api.Responder, error) {
 	wk := workflow.Workflow{}
-	wk.UnmarshalUUIDString(id)
+	wk.SetID(id)
 	payload := workflow.Workflow{}
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -102,19 +108,100 @@ func (ctrl *workflowCtrl) Replace(id string, r *http.Request) (api.Responder, er
 }
 
 func (ctrl *workflowCtrl) Edit(id string, r *http.Request) (api.Responder, error) {
-	return nil, nil
+	wk := workflow.Workflow{}
+	wk.SetID(id)
+	payload := workflow.Workflow{}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	err = jsonapi.Unmarshal(body, &payload)
+	if err != nil {
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	updated, err := ctrl.service.Edit(wk, payload)
+
+	return &api.ApiResponder{
+		Data: updated,
+		Code: 200,
+	}, err
 }
 
 func (ctrl *workflowCtrl) Add(r *http.Request) (api.Responder, error) {
-	return nil, nil
+	payload := workflow.Workflow{}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	err = jsonapi.Unmarshal(body, &payload)
+	if err != nil {
+
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	workflow, err := ctrl.service.Add(payload)
+
+	return &api.ApiResponder{
+		Data: workflow,
+		Code: 200,
+	}, err
 }
 
 func (ctrl *workflowCtrl) Delete(id string, r *http.Request) (api.Responder, error) {
-	return nil, nil
+	wk := workflow.Workflow{}
+	wk.SetID(id)
+
+	_, err := ctrl.service.Delete(wk)
+
+	return &api.ApiResponder{
+		Data: nil,
+		Code: 204,
+	}, err
 }
 
 func (ctrl *workflowCtrl) BatchAdd(r *http.Request) (api.Responder, error) {
-	return nil, nil
+	var payloads []workflow.Workflow
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	err = jsonapi.Unmarshal(body, &payloads)
+	if err != nil {
+
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	success, err := ctrl.service.BatchAdd(payloads)
+
+	return &api.ApiResponder{
+		Meta: map[string]interface{}{
+			"saved_count": success,
+		},
+		Data: nil,
+		Code: 200,
+	}, err
 }
 
 func (ctrl *workflowCtrl) BatchEdit(r *http.Request) (api.Responder, error) {

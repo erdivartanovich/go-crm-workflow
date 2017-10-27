@@ -25,11 +25,12 @@ func (w *Workflow) BeforeCreate(scope *gorm.Scope) error {
 	return err
 }
 
-func (workflow *Workflow) GetID() string {
+func (workflow Workflow) GetID() string {
 	id := &uuid.UUID{}
 	copy(id[:], workflow.ID)
 	return id.String()
 }
+
 func (workflow *Workflow) SetID(id string) error {
 	workflow.UnmarshalUUIDString(id)
 	return nil

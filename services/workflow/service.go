@@ -1,5 +1,7 @@
 package workflow
 
+import "fmt"
+
 type WorkflowService struct {
 	Repo *WorkflowRepostitory
 }
@@ -29,6 +31,33 @@ func (service *WorkflowService) Replace(workflow Workflow, payload Workflow) (*W
 
 func (service *WorkflowService) Add(workflow Workflow) (*Workflow, error) {
 	return service.Repo.Insert(workflow)
+}
+
+func (service *WorkflowService) BatchAdd(payloads []Workflow) (int, error) {
+	var ch chan bool
+	ch = make(chan bool)
+
+	go func() {
+		for i := range payloads {
+			fmt.Println("Lets save", i)
+			_, err := service.Add(payloads[i])
+			if err != nil {
+				ch <- false
+				continue
+			}
+			ch <- true
+		}
+		fmt.Println("closed")
+		close(ch)
+	}()
+	success := 0
+	for n := range ch {
+		if n == true {
+			success++
+		}
+	}
+
+	return success, nil
 }
 
 func (service *WorkflowService) Delete(workflow Workflow) (*Workflow, error) {
