@@ -57,8 +57,8 @@ func TestBrowse(t *testing.T) {
 
 func TestAddAction(t *testing.T) {
 	model := Action{
-		Name: "test",
 		UserID: 1,
+		Name: "test",
 	}
 
 	result, err := service.Add(model)
@@ -66,4 +66,15 @@ func TestAddAction(t *testing.T) {
 	assert.Nil(t, err, "Error is nil")
 	assert.Equal(t, model.Name, result.Name, "It should be equal")
 	assert.NotEqual(t, model.ID, result.ID, "Result ID should have new value")
+}
+
+func TestReadAction(t *testing.T) {
+	fixture := dbfixtures[0]
+	model := Action{
+		ID: fixture.ID,
+	}
+	result, err := service.Read(model)
+	assert.Nil(t, err, "Error is nil")
+	assert.Equal(t, fixture.Name, result.Name, "it should be equal")
+	assert.Equal(t, fixture.ID, result.ID, "it should be equal")
 }
