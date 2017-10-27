@@ -87,6 +87,14 @@ func TestEditAction(t *testing.T) {
 	result, err := service.Edit(*fixture, model)
 	assert.Nil(t, err, "Error is nil")
 	assert.NotEqual(t, fixture.Name, result.Name, "It should not be equal")
-	assert.Equal(t, model.Name, result.Name, "it should be equal")
+	assert.Equal(t, model.Name, result.Name, "It should be equal")
 	assert.Equal(t, fixture.ID, result.ID, "It should be equal")
+}
+
+func TestDeleteAction(t *testing.T) {
+	fixture := dbfixtures[0]
+	result, err := service.Delete(*fixture)
+	assert.Nil(t, err, "Error is nil")
+	assert.Equal(t, fixture.ID, result.ID, "It should be equal")
+	assert.NotEmpty(t, result.DeletedAt, "Result ID should have new value")
 }
