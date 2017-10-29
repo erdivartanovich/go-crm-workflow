@@ -20,11 +20,11 @@ func (service *ActionService) Read(action Action) (*Action, error) {
 }
 
 func (service *ActionService) Edit(action Action, payload Action) (*Action, error) {
-	wk, err := service.Read(action)
+	a, err := service.Read(action)
 	if err != nil {
 		return nil, err
 	}
-	return service.Repo.Update(*wk, payload)
+	return service.Repo.Update(*a, payload)
 }
 
 func (service *ActionService) Replace(action Action, payload Action) (*Action, error) {
