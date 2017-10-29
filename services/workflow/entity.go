@@ -25,17 +25,23 @@ func (w *Workflow) BeforeCreate(scope *gorm.Scope) error {
 	return err
 }
 
-func (workflow *Workflow) GetID() string {
+func (workflow Workflow) GetID() string {
 	id := &uuid.UUID{}
 	copy(id[:], workflow.ID)
 	return id.String()
 }
 
-func (workflow *Workflow) UnmarshalUUIDString(id string) {
+func (workflow *Workflow) SetID(id string) error {
+	workflow.UnmarshalUUIDString(id)
+	return nil
+}
+
+func (workflow *Workflow) UnmarshalUUIDString(id string) error {
 	uuid := &uuid.UUID{}
 	uuid.UnmarshalText([]byte(id))
-	binid, _ := uuid.MarshalBinary()
+	binid, err := uuid.MarshalBinary()
 	workflow.ID = binid
+	return err
 }
 
 func (workflow *Workflow) GetCustomLinks(link string) jsonapi.Links {
