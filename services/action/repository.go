@@ -42,6 +42,20 @@ func (repo *ActionRepository) Update(action Action, payload Action) (*Action, er
 	return &action, err
 }
 
+func (repo *ActionRepository) Replace(action Action, payload Action) (*Action, error) {
+	a := &action
+	db := repo.prepareDb()
+	db.First(a)
+	a.Name = payload.Name
+	a.ActionType = payload.ActionType
+	a.TargetClass = payload.TargetClass
+	a.TargetField = payload.TargetField
+	a.Value = payload.Value
+	err := db.Save(a).Error
+	repo.ResetInstance()
+	return a, err
+}
+
 func (repo *ActionRepository) Insert(action Action) (*Action, error) {
 	in := &action
 	err := repo.prepareDb().Create(in).Error
