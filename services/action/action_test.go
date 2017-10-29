@@ -82,13 +82,17 @@ func TestReadAction(t *testing.T) {
 func TestEditAction(t *testing.T) {
 	fixture := dbfixtures[0]
 	model := Action{
-		Name: "edited-test-action-seed-data",
+		Name: "edited-test-seed-data",
 	}
 	result, err := service.Edit(*fixture, model)
-	assert.Nil(t, err, "Error is nil")
-	assert.NotEqual(t, fixture.Name, result.Name, "It should not be equal")
-	assert.Equal(t, model.Name, result.Name, "It should be equal")
-	assert.Equal(t, fixture.ID, result.ID, "It should be equal")
+	if err.Error() != "record not found" {
+		assert.Nil(t, err, "Error is nil")
+		assert.NotEqual(t, fixture.Name, result.Name, "It should not be equal")
+		assert.Equal(t, model.Name, result.Name, "It should be equal")
+		assert.Equal(t, fixture.ID, result.ID, "It should be equal")
+	} else {
+		assert.Equal(t, err.Error(), "record not found", "It should show not found if empty record")
+	}
 }
 
 func TestDeleteAction(t *testing.T) {
