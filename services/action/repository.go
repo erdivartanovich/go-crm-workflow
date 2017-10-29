@@ -19,7 +19,7 @@ func (repo *ActionRepository) SetAdapter(adapter SearchAdapter) *ActionRepositor
 
 func (repo *ActionRepository) Find() ([]*Action, error) {
 	actions := &[]*Action{}
-	err := repo.prepareDb().Find(action).Error
+	err := repo.prepareDb().Find(actions).Error
 	repo.ResetInstance()
 	return *actions, err
 }
@@ -42,14 +42,14 @@ func (repo *ActionRepository) Update(action Action, payload Action) (*Action, er
 	return &action, err
 }
 
-func (repo *ActionRepostitory) Insert(action Action) (*Action, error) {
+func (repo *ActionRepository) Insert(action Action) (*Action, error) {
 	in := &action
 	err := repo.prepareDb().Create(in).Error
 	repo.ResetInstance()
 	return in, err
 }
 	
-func (repo *ActionRepostitory) Delete(action Action) (*Action, error) {
+func (repo *ActionRepository) Delete(action Action) (*Action, error) {
 	in := &action
 	if len(in.ID) == 0 {
 		return nil, errors.New("You need to set ID of deleted action")
@@ -62,7 +62,7 @@ func (repo *ActionRepostitory) Delete(action Action) (*Action, error) {
 	repo.ResetInstance()
 	return in, err
 }
-func (repo *ActionRepostitory) prepareDb() *gorm.DB {
+func (repo *ActionRepository) prepareDb() *gorm.DB {
 	count := repo.where.Len()
 	tx := repo.db
 	for i := 0; i < count; i++ {
@@ -71,19 +71,19 @@ func (repo *ActionRepostitory) prepareDb() *gorm.DB {
 	return tx
 }
 
-func (repo *ActionRepostitory) ResetInstance() {
+func (repo *ActionRepository) ResetInstance() {
 	repo.adapter = nil
 }
 
-func (repo *ActionRepostitory) Count() (int, error) {
+func (repo *ActionRepository) Count() (int, error) {
 	count := 0
 	err := repo.prepareDb().Model(&Action{}).Count(&count).Error
 	return count, err
 }
 
-func NewActionRepository() *ActionRepostitory {
+func NewActionRepository() *ActionRepository {
 	db := db.Engine
-	return &ActionRepostitory{
+	return &ActionRepository{
 		db:    db,
 		where: &stack.Stack{},
 	}
