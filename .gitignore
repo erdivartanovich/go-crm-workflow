@@ -5,3 +5,8 @@ gin-bin
 
 #ignore config file
 config.ini
+
+#ignore editor and debugging result file
+.idea/
+.vscode/
+debug.test
