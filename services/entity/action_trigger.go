@@ -1,4 +1,4 @@
-package actiontrigger
+package entity
 
 import (
 	"time"
