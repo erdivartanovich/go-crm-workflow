@@ -5,6 +5,7 @@ import (
 	"github.com/golang-collections/collections/stack"
 	"github.com/jinzhu/gorm"
 	"github.com/kwri/go-workflow/modules/db"
+	"github.com/kwri/go-workflow/services/entity"
 )
 
 type ActionTriggerRepository struct {
@@ -18,32 +19,32 @@ func (repo *ActionTriggerRepository) SetAdapter(adapter SearchAdapter) *ActionTr
 	return repo
 }
 
-func (repo *ActionTriggerRepository) Find() ([]*ActionTrigger, error) {
+func (repo *ActionTriggerRepository) Find() ([]*entity.ActionTrigger, error) {
 	ats := &[]*ActionTrigger{}
 	err := repo.preparedDb().Find(ats).Error
 	repo.ResetInstance()
 	return *ats, err
 }
 
-func (repo *ActionTriggerRepository) Where(actiontrigger ActionTrigger) *ActionTriggerRepository {
-	repo.where.Push(&ActionTrigger)
+func (repo *ActionTriggerRepository) Where(actiontrigger entity.ActionTrigger) *ActionTriggerRepository {
+	repo.where.Push(&entity.ActionTrigger)
 	return repo
 }
 
-func (actiontrigger *ActionTriggerRepository) First() (*ActionTrigger, error) {
-	at := &ActionTrigger{}
+func (actiontrigger *ActionTriggerRepository) First() (*entity.ActionTrigger, error) {
+	at := &entity.ActionTrigger{}
 	err := repo.preparedDb().First(at).Error()
 	repo.ResetInstance()
 	return at, err
 }
 
-func (repo *ActionTriggerRepository) Update(actiontrigger ActionTrigger, payload ActionTrigger) (*ActionTrigger, error) {
+func (repo *ActionTriggerRepository) Update(actiontrigger entity.ActionTrigger, payload ActionTrigger) (*entity.ActionTrigger, error) {
 	err := repo.preparedDb().Model(&actiontrigger).Update(payload).Error
 	repo.ResetInstance()
 	return &action, err
 }
 
-func (repo *ActionTriggerRepository) Replace(actiontrigger ActionTrigger, payload ActionTrigger) (*ActionTrigger, error) {
+func (repo *ActionTriggerRepository) Replace(actiontrigger entity.ActionTrigger, payload ActionTrigger) (*entity.ActionTrigger, error) {
 	at := &actiontrigger
 	db := repo.preparedDb()
 	db.First(a)
@@ -60,14 +61,14 @@ func (repo *ActionTriggerRepository) Replace(actiontrigger ActionTrigger, payloa
 	return at, err
 }
 
-func (repo *ActionTriggerRepository) Insert(actiontrigger ActionTrigger) (*ActionTrigger, error) {
+func (repo *ActionTriggerRepository) Insert(actiontrigger entity.ActionTrigger) (*entity.ActionTrigger, error) {
 	in := &actiontrigger
 	err := repo.prepareDb().Create(in).Error
 	repo.ResetInstance()
 	return in, err
 }
 	
-func (repo *ActionTriggerRepository) Delete(actiontrigger ActionTriggerion) (*ActionTrigger, error) {
+func (repo *ActionTriggerRepository) Delete(actiontrigger entity.ActionTrigger) (*entity.ActionTrigger, error) {
 	in := &actiontrigger
 	if len(in.ID) == 0 {
 		return nil, errors.New("You need to set ID of deleted action")
@@ -96,7 +97,7 @@ func (repo *ActionTriggerRepository) ResetInstance() {
 
 func (repo *ActionTriggerRepository) Count() (int, error) {
 	count := 0
-	err := repo.prepareDb().Model(&ActionTrigger{}).Count(&count).Error
+	err := repo.prepareDb().Model(&entity.ActionTrigger{}).Count(&count).Error
 	return count, err
 }
 
