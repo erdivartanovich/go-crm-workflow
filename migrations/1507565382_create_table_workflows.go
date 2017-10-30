@@ -3,7 +3,7 @@ package migrations
 import (
 	"github.com/jinzhu/gorm"
 	"github.com/kwri/go-workflow/modules/migrate"
-	"github.com/kwri/go-workflow/services/workflow"
+	"github.com/kwri/go-workflow/services/entity"
 )
 
 var (
@@ -11,11 +11,11 @@ var (
 		ID: "1507565382",
 		Migrate: func(tx *gorm.DB) error {
 
-			err := tx.CreateTable(&workflow.Workflow{}).Error
+			err := tx.CreateTable(&entity.Workflow{}).Error
 			if err != nil {
 				return err
 			}
-			seedData := []*workflow.Workflow{
+			seedData := []*entity.Workflow{
 				{
 					Name:   "Mailchimp Discount Campaign",
 					UserID: 1,
@@ -38,7 +38,7 @@ var (
 			return nil
 		},
 		Rollback: func(tx *gorm.DB) error {
-			err := tx.DropTableIfExists(&workflow.Workflow{}).Error
+			err := tx.DropTableIfExists(&entity.Workflow{}).Error
 			return err
 		},
 	}

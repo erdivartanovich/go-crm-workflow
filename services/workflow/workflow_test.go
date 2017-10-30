@@ -6,6 +6,7 @@ import (
 
 	"github.com/kwri/go-workflow/modules/db"
 	"github.com/kwri/go-workflow/modules/setting"
+	"github.com/kwri/go-workflow/services/entity"
 	"github.com/stretchr/testify/assert"
 
 	"testing"
@@ -13,7 +14,7 @@ import (
 
 var (
 	service    *WorkflowService
-	dbfixtures []*Workflow
+	dbfixtures []*entity.Workflow
 )
 
 func setup() {
@@ -33,7 +34,7 @@ func shutdown() {
 
 func seedTestData() {
 	for i := 1; i <= 10; i++ {
-		model := &Workflow{
+		model := &entity.Workflow{
 			Name:   fmt.Sprintf("test-seed-data-%d", i),
 			UserID: 1,
 		}
@@ -58,7 +59,7 @@ func TestBrowse(t *testing.T) {
 
 func TestAddWorkflow(t *testing.T) {
 
-	model := Workflow{
+	model := entity.Workflow{
 		Name:   "test",
 		UserID: 1,
 	}
@@ -72,7 +73,7 @@ func TestAddWorkflow(t *testing.T) {
 
 func TestReadWorkflow(t *testing.T) {
 	fixture := dbfixtures[0]
-	model := Workflow{
+	model := entity.Workflow{
 		ID: fixture.ID,
 	}
 	result, err := service.Read(model)
@@ -82,11 +83,15 @@ func TestReadWorkflow(t *testing.T) {
 }
 
 func TestEditWorkflow(t *testing.T) {
-	fixture := dbfixtures[0]
-	model := Workflow{
+	fixture := entity.Workflow{
+		ID: dbfixtures[0].ID,
+	}
+
+	model := entity.Workflow{
 		Name: "edited-test-seed-data",
 	}
-	result, err := service.Edit(*fixture, model)
+
+	result, err := service.Edit(fixture, model)
 	assert.Nil(t, err, "Error is nil")
 	assert.NotEqual(t, fixture.Name, result.Name, "It should not be equal")
 	assert.Equal(t, model.Name, result.Name, "It should be equal")
@@ -102,7 +107,7 @@ func TestDeleteWorkflow(t *testing.T) {
 }
 
 func TestDeleteEmptyIDError(t *testing.T) {
-	fixture := Workflow{}
+	fixture := entity.Workflow{}
 	_, err := service.Delete(fixture)
 	assert.NotNil(t, err, "Error is not nil")
 }

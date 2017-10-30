@@ -2,6 +2,8 @@ package action
 
 import (
 	"fmt"
+
+	"github.com/kwri/go-workflow/services/entity"
 )
 
 type ActionService struct {
@@ -11,15 +13,15 @@ type ActionService struct {
 type SearchAdapter struct {
 }
 
-func (service *ActionService) Browse(adapter SearchAdapter) ([]*Action, error) {
+func (service *ActionService) Browse(adapter SearchAdapter) ([]*entity.Action, error) {
 	return service.Repo.SetAdapter(adapter).Find()
 }
 
-func (service *ActionService) Read(action Action) (*Action, error) {
+func (service *ActionService) Read(action entity.Action) (*entity.Action, error) {
 	return service.Repo.Where(action).First()
 }
 
-func (service *ActionService) Edit(action Action, payload Action) (*Action, error) {
+func (service *ActionService) Edit(action entity.Action, payload entity.Action) (*entity.Action, error) {
 	a, err := service.Read(action)
 	if err != nil {
 		return nil, err
@@ -27,15 +29,15 @@ func (service *ActionService) Edit(action Action, payload Action) (*Action, erro
 	return service.Repo.Update(*a, payload)
 }
 
-func (service *ActionService) Replace(action Action, payload Action) (*Action, error) {
+func (service *ActionService) Replace(action entity.Action, payload entity.Action) (*entity.Action, error) {
 	return service.Repo.Replace(action, payload)
 }
 
-func (service *ActionService) Add(action Action) (*Action, error) {
+func (service *ActionService) Add(action entity.Action) (*entity.Action, error) {
 	return service.Repo.Insert(action)
 }
 
-func (service *ActionService) BatchAdd(payloads []Action) (int, error) {
+func (service *ActionService) BatchAdd(payloads []entity.Action) (int, error) {
 	var ch chan bool
 	ch = make(chan bool)
 
@@ -62,7 +64,7 @@ func (service *ActionService) BatchAdd(payloads []Action) (int, error) {
 	return success, nil
 }
 
-func (service *ActionService) Delete(action Action) (*Action, error) {
+func (service *ActionService) Delete(action entity.Action) (*entity.Action, error) {
 	return service.Repo.Delete(action)
 }
 
@@ -72,6 +74,6 @@ func (service *ActionService) Count(adapter SearchAdapter) (int, error) {
 
 func NewActionService() *ActionService {
 	return &ActionService{
-		Repo:NewActionRepository(),
+		Repo: NewActionRepository(),
 	}
 }

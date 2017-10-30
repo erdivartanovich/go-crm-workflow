@@ -7,14 +7,14 @@ import (
 )
 
 var (
-	create_table_actions_1507579635 = migrate.Migration{
-		ID: "1507579635",
+	create_workflow_log_table_1509349752 = migrate.Migration{
+		ID: "1509349752",
 		Migrate: func(tx *gorm.DB) error {
-			err := tx.CreateTable(&entity.Action{}).Error
+			err := tx.CreateTable(&entity.WorkflowLog{}).Error
 			return err
 		},
 		Rollback: func(tx *gorm.DB) error {
-			err := tx.DropTableIfExists(&entity.Action{}).Error
+			err := tx.DropTableIfExists(&entity.WorkflowLog{}).Error
 			return err
 		},
 	}

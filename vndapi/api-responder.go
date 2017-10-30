@@ -48,7 +48,6 @@ func (res *ApiResponder) WriteResponse(w http.ResponseWriter, err error, r *http
 
 	items := res.Data
 	paginator, isPaginator := items.(paginator.Paginator)
-
 	if isPaginator {
 		items = paginator.Items()
 	}

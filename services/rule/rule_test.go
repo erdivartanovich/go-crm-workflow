@@ -6,6 +6,7 @@ import (
 
 	"github.com/kwri/go-workflow/modules/db"
 	"github.com/kwri/go-workflow/modules/setting"
+	"github.com/kwri/go-workflow/services/entity"
 	"github.com/stretchr/testify/assert"
 
 	"testing"
@@ -13,7 +14,7 @@ import (
 
 var (
 	service    *RuleService
-	dbfixtures []*Rule
+	dbfixtures []*entity.Rule
 )
 
 func setup() {
@@ -33,7 +34,7 @@ func shutdown() {
 
 func seedTestData() {
 	for i := 1; i <= 10; i++ {
-		model := &Rule{
+		model := &entity.Rule{
 			Name:   fmt.Sprintf("test-seed-data-%d", i),
 			UserID: 1,
 		}
@@ -58,7 +59,7 @@ func TestBrowse(t *testing.T) {
 
 func TestAddRule(t *testing.T) {
 
-	model := Rule{
+	model := entity.Rule{
 		Name:   "test",
 		UserID: 1,
 	}
@@ -72,7 +73,7 @@ func TestAddRule(t *testing.T) {
 
 func TestReadRule(t *testing.T) {
 	fixture := dbfixtures[0]
-	model := Rule{
+	model := entity.Rule{
 		ID: fixture.ID,
 	}
 	result, err := service.Read(model)
@@ -83,7 +84,7 @@ func TestReadRule(t *testing.T) {
 
 func TestEditRule(t *testing.T) {
 	fixture := dbfixtures[0]
-	model := Rule{
+	model := entity.Rule{
 		Name: "edited-test-seed-data",
 	}
 	result, err := service.Edit(*fixture, model)
@@ -102,12 +103,7 @@ func TestDeleteRule(t *testing.T) {
 }
 
 func TestDeleteEmptyIDError(t *testing.T) {
-	fixture := Rule{}
+	fixture := entity.Rule{}
 	_, err := service.Delete(fixture)
 	assert.NotNil(t, err, "Error is not nil")
 }
-
-
-
-
-

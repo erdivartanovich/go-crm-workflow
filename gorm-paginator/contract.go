@@ -6,7 +6,7 @@ type Paginator interface {
 	LastPageURL() string
 	NextPageURL() string
 	PreviousPageURL() string
-	Items() []interface{}
+	Items() interface{}
 	Total() int
 	Count() int
 }

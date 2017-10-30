@@ -1,6 +1,8 @@
 package workflow
 
-import "fmt"
+import (
+	"github.com/kwri/go-workflow/services/entity"
+)
 
 type WorkflowService struct {
 	Repo *WorkflowRepostitory
@@ -9,37 +11,37 @@ type WorkflowService struct {
 type SearchAdapter struct {
 }
 
-func (service *WorkflowService) Browse(adapter SearchAdapter) ([]*Workflow, error) {
+func (service *WorkflowService) Browse(adapter SearchAdapter) ([]*entity.Workflow, error) {
 	return service.Repo.SetAdapter(adapter).Find()
 }
 
-func (service *WorkflowService) Read(workflow Workflow) (*Workflow, error) {
+func (service *WorkflowService) Read(workflow entity.Workflow) (*entity.Workflow, error) {
 	return service.Repo.Where(workflow).First()
 }
 
-func (service *WorkflowService) Edit(workflow Workflow, payload Workflow) (*Workflow, error) {
+func (service *WorkflowService) Edit(workflow entity.Workflow, payload entity.Workflow) (*entity.Workflow, error) {
 	wk, err := service.Read(workflow)
+
 	if err != nil {
 		return nil, err
 	}
 	return service.Repo.Update(*wk, payload)
 }
 
-func (service *WorkflowService) Replace(workflow Workflow, payload Workflow) (*Workflow, error) {
+func (service *WorkflowService) Replace(workflow entity.Workflow, payload entity.Workflow) (*entity.Workflow, error) {
 	return service.Repo.Replace(workflow, payload)
 }
 
-func (service *WorkflowService) Add(workflow Workflow) (*Workflow, error) {
+func (service *WorkflowService) Add(workflow entity.Workflow) (*entity.Workflow, error) {
 	return service.Repo.Insert(workflow)
 }
 
-func (service *WorkflowService) BatchAdd(payloads []Workflow) (int, error) {
+func (service *WorkflowService) BatchAdd(payloads []entity.Workflow) (int, error) {
 	var ch chan bool
 	ch = make(chan bool)
 
 	go func() {
 		for i := range payloads {
-			fmt.Println("Lets save", i)
 			_, err := service.Add(payloads[i])
 			if err != nil {
 				ch <- false
@@ -47,7 +49,6 @@ func (service *WorkflowService) BatchAdd(payloads []Workflow) (int, error) {
 			}
 			ch <- true
 		}
-		fmt.Println("closed")
 		close(ch)
 	}()
 	success := 0
@@ -60,7 +61,7 @@ func (service *WorkflowService) BatchAdd(payloads []Workflow) (int, error) {
 	return success, nil
 }
 
-func (service *WorkflowService) Delete(workflow Workflow) (*Workflow, error) {
+func (service *WorkflowService) Delete(workflow entity.Workflow) (*entity.Workflow, error) {
 	return service.Repo.Delete(workflow)
 }
 

@@ -6,6 +6,7 @@ import (
 	"github.com/golang-collections/collections/stack"
 	"github.com/jinzhu/gorm"
 	"github.com/kwri/go-workflow/modules/db"
+	"github.com/kwri/go-workflow/services/entity"
 )
 
 type WorkflowRepostitory struct {
@@ -19,34 +20,34 @@ func (repo *WorkflowRepostitory) SetAdapter(adapter SearchAdapter) *WorkflowRepo
 	return repo
 }
 
-func (repo *WorkflowRepostitory) Find() ([]*Workflow, error) {
-	workflows := &[]*Workflow{}
+func (repo *WorkflowRepostitory) Find() ([]*entity.Workflow, error) {
+	workflows := &[]*entity.Workflow{}
 	err := repo.prepareDb().Find(workflows).Error
 	repo.ResetInstance()
 	return *workflows, err
 }
 
-func (repo *WorkflowRepostitory) Where(workflow Workflow) *WorkflowRepostitory {
+func (repo *WorkflowRepostitory) Where(workflow entity.Workflow) *WorkflowRepostitory {
 	repo.where.Push(&workflow)
 	return repo
 }
 
-func (repo *WorkflowRepostitory) First() (*Workflow, error) {
+func (repo *WorkflowRepostitory) First() (*entity.Workflow, error) {
 
-	workflow := &Workflow{}
+	workflow := &entity.Workflow{}
 	err := repo.prepareDb().First(workflow).Error
 	repo.ResetInstance()
 	return workflow, err
 }
 
-func (repo *WorkflowRepostitory) Update(workflow Workflow, payload Workflow) (*Workflow, error) {
+func (repo *WorkflowRepostitory) Update(workflow entity.Workflow, payload entity.Workflow) (*entity.Workflow, error) {
 
 	err := repo.prepareDb().Model(&workflow).Update(payload).Error
 	repo.ResetInstance()
 	return &workflow, err
 }
 
-func (repo *WorkflowRepostitory) Replace(workflow Workflow, payload Workflow) (*Workflow, error) {
+func (repo *WorkflowRepostitory) Replace(workflow entity.Workflow, payload entity.Workflow) (*entity.Workflow, error) {
 	wk := &workflow
 	db := repo.prepareDb()
 	db.First(wk)
@@ -58,7 +59,7 @@ func (repo *WorkflowRepostitory) Replace(workflow Workflow, payload Workflow) (*
 	return wk, err
 }
 
-func (repo *WorkflowRepostitory) Insert(workflow Workflow) (*Workflow, error) {
+func (repo *WorkflowRepostitory) Insert(workflow entity.Workflow) (*entity.Workflow, error) {
 
 	in := &workflow
 	err := repo.prepareDb().Create(in).Error
@@ -66,7 +67,7 @@ func (repo *WorkflowRepostitory) Insert(workflow Workflow) (*Workflow, error) {
 	return in, err
 }
 
-func (repo *WorkflowRepostitory) Delete(workflow Workflow) (*Workflow, error) {
+func (repo *WorkflowRepostitory) Delete(workflow entity.Workflow) (*entity.Workflow, error) {
 
 	in := &workflow
 	if len(in.ID) == 0 {
@@ -96,7 +97,7 @@ func (repo *WorkflowRepostitory) ResetInstance() {
 
 func (repo *WorkflowRepostitory) Count() (int, error) {
 	count := 0
-	err := repo.prepareDb().Model(&Workflow{}).Count(&count).Error
+	err := repo.prepareDb().Model(&entity.Workflow{}).Count(&count).Error
 	return count, err
 }
 
