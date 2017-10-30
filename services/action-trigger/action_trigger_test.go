@@ -1,4 +1,4 @@
-package action_trigger
+package actiontrigger
 import (
 	"github.com/stretchr/testify/assert"
 	"fmt"
