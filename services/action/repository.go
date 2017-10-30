@@ -2,14 +2,17 @@ package action
 
 import (
 	"errors"
+
 	"github.com/golang-collections/collections/stack"
 	"github.com/jinzhu/gorm"
 	"github.com/kwri/go-workflow/modules/db"
+	"github.com/kwri/go-workflow/services/entity"
 )
+
 type ActionRepository struct {
-	db *gorm.DB
+	db      *gorm.DB
 	adapter *SearchAdapter
-	where *stack.Stack
+	where   *stack.Stack
 }
 
 func (repo *ActionRepository) SetAdapter(adapter SearchAdapter) *ActionRepository {
@@ -17,32 +20,32 @@ func (repo *ActionRepository) SetAdapter(adapter SearchAdapter) *ActionRepositor
 	return repo
 }
 
-func (repo *ActionRepository) Find() ([]*Action, error) {
-	actions := &[]*Action{}
+func (repo *ActionRepository) Find() ([]*entity.Action, error) {
+	actions := &[]*entity.Action{}
 	err := repo.prepareDb().Find(actions).Error
 	repo.ResetInstance()
 	return *actions, err
 }
 
-func (repo *ActionRepository) Where(action Action) *ActionRepository {
+func (repo *ActionRepository) Where(action entity.Action) *ActionRepository {
 	repo.where.Push(&action)
 	return repo
 }
 
-func (repo *ActionRepository) First() (*Action, error) {
-	action := &Action{}
+func (repo *ActionRepository) First() (*entity.Action, error) {
+	action := &entity.Action{}
 	err := repo.prepareDb().First(action).Error
 	repo.ResetInstance()
 	return action, err
 }
 
-func (repo *ActionRepository) Update(action Action, payload Action) (*Action, error) {
+func (repo *ActionRepository) Update(action entity.Action, payload entity.Action) (*entity.Action, error) {
 	err := repo.prepareDb().Model(&action).Update(payload).Error
 	repo.ResetInstance()
 	return &action, err
 }
 
-func (repo *ActionRepository) Replace(action Action, payload Action) (*Action, error) {
+func (repo *ActionRepository) Replace(action entity.Action, payload entity.Action) (*entity.Action, error) {
 	a := &action
 	db := repo.prepareDb()
 	db.First(a)
@@ -56,14 +59,14 @@ func (repo *ActionRepository) Replace(action Action, payload Action) (*Action, e
 	return a, err
 }
 
-func (repo *ActionRepository) Insert(action Action) (*Action, error) {
+func (repo *ActionRepository) Insert(action entity.Action) (*entity.Action, error) {
 	in := &action
 	err := repo.prepareDb().Create(in).Error
 	repo.ResetInstance()
 	return in, err
 }
-	
-func (repo *ActionRepository) Delete(action Action) (*Action, error) {
+
+func (repo *ActionRepository) Delete(action entity.Action) (*entity.Action, error) {
 	in := &action
 	if len(in.ID) == 0 {
 		return nil, errors.New("You need to set ID of deleted action")
@@ -91,7 +94,7 @@ func (repo *ActionRepository) ResetInstance() {
 
 func (repo *ActionRepository) Count() (int, error) {
 	count := 0
-	err := repo.prepareDb().Model(&Action{}).Count(&count).Error
+	err := repo.prepareDb().Model(&entity.Action{}).Count(&count).Error
 	return count, err
 }
 
@@ -102,4 +105,3 @@ func NewActionRepository() *ActionRepository {
 		where: &stack.Stack{},
 	}
 }
-	

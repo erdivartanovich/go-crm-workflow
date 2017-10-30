@@ -1,18 +1,20 @@
 package action
 
 import (
-	"github.com/stretchr/testify/assert"
 	"fmt"
 	"os"
 
+	"github.com/stretchr/testify/assert"
+
+	"testing"
+
 	"github.com/kwri/go-workflow/modules/db"
 	"github.com/kwri/go-workflow/modules/setting"
-	"testing"
 )
 
 var (
-	service *ActionService
-	dbfixtures []*Action
+	service    *ActionService
+	dbfixtures []*entity.Action
 )
 
 func setup() {
@@ -31,9 +33,9 @@ func shutdown() {
 }
 
 func seedTestData() {
-	for i := 1; i<=10; i++ {
-		model := &Action{
-			Name: fmt.Sprintf("test-seed-data-%d", i),
+	for i := 1; i <= 10; i++ {
+		model := &entity.Action{
+			Name:   fmt.Sprintf("test-seed-data-%d", i),
 			UserID: 1,
 		}
 		service.Repo.db.Create(model)
@@ -56,9 +58,9 @@ func TestBrowse(t *testing.T) {
 }
 
 func TestAddAction(t *testing.T) {
-	model := Action{
+	model := entity.Action{
 		UserID: 1,
-		Name: "test",
+		Name:   "test",
 	}
 
 	result, err := service.Add(model)
@@ -70,7 +72,7 @@ func TestAddAction(t *testing.T) {
 
 func TestReadAction(t *testing.T) {
 	fixture := dbfixtures[0]
-	model := Action{
+	model := entity.Action{
 		ID: fixture.ID,
 	}
 	result, err := service.Read(model)
@@ -81,7 +83,7 @@ func TestReadAction(t *testing.T) {
 
 func TestEditAction(t *testing.T) {
 	fixture := dbfixtures[0]
-	model := Action{
+	model := entity.Action{
 		Name: "edited-test-seed-data",
 	}
 	result, err := service.Edit(*fixture, model)
@@ -104,7 +106,7 @@ func TestDeleteAction(t *testing.T) {
 }
 
 func TestDeleteEmptyIDError(t *testing.T) {
-	fixture := Action{}
+	fixture := entity.Action{}
 	_, err := service.Delete(fixture)
 	assert.NotNil(t, err, "Error is not nil")
 }

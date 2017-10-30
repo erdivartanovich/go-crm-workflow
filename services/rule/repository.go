@@ -2,9 +2,11 @@ package rule
 
 import (
 	"errors"
+
 	"github.com/golang-collections/collections/stack"
 	"github.com/jinzhu/gorm"
 	"github.com/kwri/go-workflow/modules/db"
+	"github.com/kwri/go-workflow/services/entity"
 )
 
 type RuleRepository struct {
@@ -18,39 +20,39 @@ func (repo *RuleRepository) SetAdapter(adapter SearchAdapter) *RuleRepository {
 	return repo
 }
 
-func (repo *RuleRepository) Find() ([]*Rule, error) {
-	rules := &[]*Rule{}
+func (repo *RuleRepository) Find() ([]*entity.Rule, error) {
+	rules := &[]*entity.Rule{}
 	err := repo.prepareDb().Find(rules).Error
 	repo.ResetInstance()
 	return *rules, err
 }
 
-func (repo *RuleRepository) Where(rule Rule) *RuleRepository {
+func (repo *RuleRepository) Where(rule entity.Rule) *RuleRepository {
 	repo.where.Push(&rule)
 	return repo
 }
 
-func (repo *RuleRepository) First() (*Rule, error) {
-	rule := &Rule{}
+func (repo *RuleRepository) First() (*entity.Rule, error) {
+	rule := &entity.Rule{}
 	err := repo.prepareDb().First(rule).Error
 	repo.ResetInstance()
 	return rule, err
 }
 
-func (repo *RuleRepository) Update(rule Rule, payload Rule) (*Rule, error) {
+func (repo *RuleRepository) Update(rule entity.Rule, payload entity.Rule) (*entity.Rule, error) {
 	err := repo.prepareDb().Model(&rule).Update(payload).Error
 	repo.ResetInstance()
 	return &rule, err
 }
 
-func (repo *RuleRepository) Insert(rule Rule) (*Rule, error) {
+func (repo *RuleRepository) Insert(rule entity.Rule) (*entity.Rule, error) {
 	in := &rule
 	err := repo.prepareDb().Create(in).Error
 	repo.ResetInstance()
 	return in, err
 }
 
-func (repo *RuleRepository) Delete(rule Rule) (*Rule, error) {
+func (repo *RuleRepository) Delete(rule entity.Rule) (*entity.Rule, error) {
 	in := &rule
 	if len(in.ID) == 0 {
 		return nil, errors.New("You need to set ID of deleted rule")

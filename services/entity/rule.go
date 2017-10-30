@@ -1,4 +1,4 @@
-package rule
+package entity
 
 import (
 	"time"
@@ -6,17 +6,16 @@ import (
 	"github.com/google/jsonapi"
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
-	"github.com/kwri/go-workflow/services/action"
 )
 
 type Rule struct {
-	ID         []byte    `gorm:"type:binary(16);primary_key" json:"-"`
-	WorkflowID []byte    `gorm:"type:binary(16);index" json:"-"`
-	UserID     uint    `gorm:"unsigned;unique_index:rules_name_user_id" json:"-"`
-	Name       string    `gorm:"not null;unique_index:rules_name_user_id" json:"name"`
-	Actions []action.Action `gorm:"many2many:rule_action;" json:"actions"`
-	CreatedAt  time.Time `gorm:"default:current_timestamp" json:"created_at"`
-	UpdatedAt  time.Time `gorm:"default:current_timestamp on update current_timestamp" json:"updated_at"`
+	ID         []byte     `gorm:"type:binary(16);primary_key" json:"-"`
+	WorkflowID []byte     `gorm:"type:binary(16);index" json:"-"`
+	UserID     uint       `gorm:"unsigned;unique_index:rules_name_user_id" json:"-"`
+	Name       string     `gorm:"not null;unique_index:rules_name_user_id" json:"name"`
+	Actions    []Action   `gorm:"many2many:rule_action;" json:"actions"`
+	CreatedAt  time.Time  `gorm:"default:current_timestamp" json:"created_at"`
+	UpdatedAt  time.Time  `gorm:"default:current_timestamp on update current_timestamp" json:"updated_at"`
 	DeletedAt  *time.Time `json:"deleted_at,omitempty"`
 }
 
@@ -44,4 +43,3 @@ func (rule *Rule) GetCustomLinks(link string) jsonapi.Links {
 	links["current"] = link
 	return links
 }
-
