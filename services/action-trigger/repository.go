@@ -20,35 +20,34 @@ func (repo *ActionTriggerRepository) SetAdapter(adapter SearchAdapter) *ActionTr
 }
 
 func (repo *ActionTriggerRepository) Find() ([]*entity.ActionTrigger, error) {
-	ats := &[]*ActionTrigger{}
-	err := repo.preparedDb().Find(ats).Error
+	ats := &[]*entity.ActionTrigger{}
+	err := repo.prepareDb().Find(ats).Error
 	repo.ResetInstance()
 	return *ats, err
 }
 
 func (repo *ActionTriggerRepository) Where(actiontrigger entity.ActionTrigger) *ActionTriggerRepository {
-	repo.where.Push(&entity.ActionTrigger)
+	repo.where.Push(&actiontrigger)
 	return repo
 }
 
-func (actiontrigger *ActionTriggerRepository) First() (*entity.ActionTrigger, error) {
+func (repo *ActionTriggerRepository) First() (*entity.ActionTrigger, error) {
 	at := &entity.ActionTrigger{}
-	err := repo.preparedDb().First(at).Error()
+	err := repo.prepareDb().First(at).Error
 	repo.ResetInstance()
 	return at, err
 }
 
-func (repo *ActionTriggerRepository) Update(actiontrigger entity.ActionTrigger, payload ActionTrigger) (*entity.ActionTrigger, error) {
-	err := repo.preparedDb().Model(&actiontrigger).Update(payload).Error
+func (repo *ActionTriggerRepository) Update(actiontrigger entity.ActionTrigger, payload entity.ActionTrigger) (*entity.ActionTrigger, error) {
+	err := repo.prepareDb().Model(&actiontrigger).Update(payload).Error
 	repo.ResetInstance()
-	return &action, err
+	return &actiontrigger, err
 }
 
-func (repo *ActionTriggerRepository) Replace(actiontrigger entity.ActionTrigger, payload ActionTrigger) (*entity.ActionTrigger, error) {
+func (repo *ActionTriggerRepository) Replace(actiontrigger entity.ActionTrigger, payload entity.ActionTrigger) (*entity.ActionTrigger, error) {
 	at := &actiontrigger
-	db := repo.preparedDb()
-	db.First(a)
-	at.Name = payload.Name
+	db := repo.prepareDb()
+	db.First(at)
 	at.TargetField = payload.TargetField
 	at.Hour = payload.Hour
 	at.Min = payload.Min
