@@ -5,12 +5,13 @@ import (
 	"os"
 	"github.com/kwri/go-workflow/modules/db"
 	"github.com/kwri/go-workflow/modules/setting"
+	"github.com/kwri/go-workflow/services/entity"
 	"testing"
  )
 
 var (
 	service *ActionTriggerService
-	dbfixtures []*ActionTrigger
+	dbfixtures []*entity.ActionTrigger
 )
 
 func setup() {
@@ -24,8 +25,18 @@ func setup() {
 }
 
 func shutdown() {
-	service.Repo.db.Rollback()
+	service.Repo.db.Commit()
 	db.Engine.Close()
+}
+
+func seedTestData() {
+	for i := 1; i <= 10; i++ {
+		model := &entity.ActionTrigger{
+			Min:   fmt.Sprintf("test-seed-data-%d", i),
+		}
+		service.Repo.db.Create(model)
+		dbfixtures = append(dbfixtures, model)
+	}
 }
 
 func TestMain(m *testing.M) {
@@ -42,40 +53,39 @@ func TestBrowse(t *testing.T) {
 	assert.NotEqual(t, result, "Data should not empty")
 }
 
-func TestAddActionTrigger(t, *testing.T) {
-	model := ActionTrigger{
-		UserID: 1,
-		Name: "test",
+func TestAddActionTrigger(t *testing.T) {
+	model := entity.ActionTrigger{
+		Min: "test",
 	}
 
 	result, err := service.Add(model)
 
 	assert.Nil(t, err, "Error is nil")
-	assert.Equal(t, mode.Name, result.Name, "It should be equal")
-	assert.NotEqual(t, model.ID, result.Id, "Result ID should not be equal")
+	assert.Equal(t, model.Min, result.Min, "It should be equal")
+	assert.NotEqual(t, model.ID, result.ID, "Result ID should not be equal")
 }
 
 func TestReadActionTrigger(t *testing.T) {
 	fixtures := dbfixtures[0]
-	model := ActionTrigger{
+	model := entity.ActionTrigger{
 		ID: fixtures.ID,
 	}
 	result, err := service.Read(model)
 	assert.Nil(t, err, "Error is nil")
-	assert.Equal(t, fixtures.Name, result.Name, "it should be equal")
+	assert.Equal(t, fixtures.Min, result.Min, "it should be equal")
 	assert.Equal(t, fixtures.ID, result.ID, "it should be equal")
 }
 
 func TestEditActionTrigger(t *testing.T) {
-	fisture := dbfixtures[0]
-	model := ActionTrigger{
-		Name: "edited-test-seed-data"
+	fixture := dbfixtures[0]
+	model := entity.ActionTrigger{
+		Min: "edited-test-seed-data",
 	}
-	result, err := service.Edit(*fixture. model)
+	result, err := service.Edit(*fixture, model)
 	if err.Error() != "record not found" {
 		assert.Nil(t, err, "Error is nil")
-		assert.NotEqual(t, fixture.Name, result.Name, "It should not be equal")
-		assert.Equal(t, model.Name, result.Name, "It should be equal")
+		assert.NotEqual(t, fixture.Min, result.Min, "It should not be equal")
+		assert.Equal(t, model.Min, result.Min, "It should be equal")
 		assert.Equal(t, fixture.ID, result.ID, "It should be equal")
 	} else {
 		assert.Equal(t, err.Error(), "record not found", "It should be equal")
@@ -91,7 +101,7 @@ func TestDeleteActionTrigger(t *testing.T) {
 }
 
 func TestDeleteEmptyIDError(t *testing.T) {
-	fixture := ActionTrigger{}
+	fixture := entity.ActionTrigger{}
 	_, err := service.Delete(fixture)
 	assert.NotNil(t, err, "Error is not nil")
 }
