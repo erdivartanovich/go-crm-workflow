@@ -11,12 +11,12 @@ type ActionTrigger struct {
 	ID          []byte    `gorm:"type:binary(16);primary_key" json:"-"`
 	ActionID   	uint64    `gorm:"type:binary(16);index" json:"-"`
 	TargetField string    `gorm:"not null" json:"target_field"`
-	Min			string	  `gorm:"default:*" json:"min"`
-	Hour		string	  `gorm:"default:*" json:"hour"`
-	DayPerMonth string	  `gorm:"default:*" json:"day_per_month"`
-	Month		string	  `gorm:"default:*" json:"month"`
-	DayPerWeek 	string	  `gorm:"default:*" json:"day_per_week"`
-	RunnableOnce string	  `gorm:"default:*" json:"runnable_once"`
+	Min			string	  `gorm:"not null;default:'*'" json:"min"`
+	Hour		string	  `gorm:"not null;default:'*'" json:"hour"`
+	DayPerMonth string	  `gorm:"not null;default:'*'" json:"day_per_month"`
+	Month		string	  `gorm:"not null;default:'*'" json:"month"`
+	DayPerWeek 	string	  `gorm:"not null;default:'*'" json:"day_per_week"`
+	RunnableOnce string	  `gorm:"not null;default:'*'" json:"runnable_once"`
 	CreatedAt   time.Time `gorm:"default:current_timestamp" json:"created_at"`
 	UpdatedAt   time.Time `gorm:"default:current_timestamp on update current_timestamp" json:"updated_at"`
 	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
