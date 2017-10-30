@@ -81,3 +81,17 @@ func TestEditActionTrigger(t *testing.T) {
 		assert.Equal(t, err.Error(), "record not found", "It should be equal")
 	}
 }
+
+func TestDeleteActionTrigger(t *testing.T) {
+	fixture := dbfixtures[0]
+	result, err := service.Delete(*fixture)
+	assert.Nil(t, err, "Error is nil")
+	assert.Equal(t, fixture.ID, result.ID, "It should be equal")
+	assert.NotEmpty(t, result.DeletedAt, "Result ID should have new value")
+}
+
+func TestDeleteEmptyIDError(t *testing.T) {
+	fixture := ActionTrigger{}
+	_, err := service.Delete(fixture)
+	assert.NotNil(t, err, "Error is not nil")
+}
