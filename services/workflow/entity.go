@@ -10,7 +10,7 @@ import (
 
 type Workflow struct {
 	ID          []byte     `gorm:"type:binary(16);primary_key" json:"-"`
-	UserID      uint64     `gorm:"unsigned;unique_index:workflows_name_user_id;index;not null" json:"-"`
+	UserID      uint     `gorm:"unsigned;unique_index:workflows_name_user_id;index;not null" json:"-"`
 	Name        string     `gorm:"unique_index:workflows_name_user_id;not null" json:"name" json:"name"`
 	IsShared    bool       `gorm:"not null;default:0" json:"is_shared"`
 	IsActivated bool       `gorm:"not null;default:0" json:"is_activated"`

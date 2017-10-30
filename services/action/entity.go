@@ -10,7 +10,7 @@ import (
 
 type Action struct {
 	ID          []byte    `gorm:"type:binary(16);primary_key" json:"-"`
-	UserID      uint64    `gorm:"unsigned user_id;unique_index:actions_name_user_id;index;not null" json:"-"`
+	UserID      uint    `gorm:"unsigned user_id;unique_index:actions_name_user_id;index;not null" json:"-"`
 	TaskID      string    `sql:"type:varchar(36);index" json:"task_id"`
 	Name        string    `gorm:"not null;unique_index:actions_name_user_id" json:"name"`
 	ActionType  int8      `gorm:"not null;default:0" json:"action_type"`

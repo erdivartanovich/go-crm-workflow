@@ -12,7 +12,7 @@ import (
 type Rule struct {
 	ID         []byte    `gorm:"type:binary(16);primary_key" json:"-"`
 	WorkflowID []byte    `gorm:"type:binary(16);index" json:"-"`
-	UserID     uint64    `gorm:"unsigned;unique_index:rules_name_user_id" json:"-"`
+	UserID     uint    `gorm:"unsigned;unique_index:rules_name_user_id" json:"-"`
 	Name       string    `gorm:"not null;unique_index:rules_name_user_id" json:"name"`
 	Actions []action.Action `gorm:"many2many:rule_action;" json:"actions"`
 	CreatedAt  time.Time `gorm:"default:current_timestamp" json:"created_at"`

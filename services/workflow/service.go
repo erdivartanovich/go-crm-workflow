@@ -47,7 +47,6 @@ func (service *WorkflowService) BatchAdd(payloads []Workflow) (int, error) {
 			}
 			ch <- true
 		}
-		fmt.Println("closed")
 		close(ch)
 	}()
 	success := 0
