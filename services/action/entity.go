@@ -1,25 +1,25 @@
 package action
 
 import (
-	"encoding/json"
 	"time"
 
+	"github.com/google/jsonapi"
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 )
 
 type Action struct {
-	ID          []byte    `gorm:"type:binary(16);primary_key"`
-	UserID      uint64    `gorm:"unsigned user_id;unique_index:actions_name_user_id;index"`
-	TaskID      string    `sql:"type:varchar(36);index"`
-	Name        string    `gorm:"not null;unique_index:actions_name_user_id"`
-	ActionType  int8      `gorm:"not null;default:0"`
-	TargetClass string    `gorm:"not null"`
-	TargetField string    `gorm:"not null"`
-	Value       string    `gorm:"type:text"`
-	CreatedAt   time.Time `gorm:"default:current_timestamp"`
-	UpdatedAt   time.Time `gorm:"default:current_timestamp on update current_timestamp"`
-	DeletedAt   *time.Time
+	ID          []byte    `gorm:"type:binary(16);primary_key" json:"-"`
+	UserID      uint64    `gorm:"unsigned user_id;unique_index:actions_name_user_id;index;not null" json:"-"`
+	TaskID      string    `sql:"type:varchar(36);index" json:"task_id"`
+	Name        string    `gorm:"not null;unique_index:actions_name_user_id" json:"name"`
+	ActionType  int8      `gorm:"not null;default:0" json:"action_type"`
+	TargetClass string    `gorm:"not null" json:"target_class"`
+	TargetField string    `gorm:"not null" json:"target_field"`
+	Value       string    `gorm:"type:text" json:"value"`
+	CreatedAt   time.Time `gorm:"default:current_timestamp" json:"created_at"`
+	UpdatedAt   time.Time `gorm:"default:current_timestamp on update current_timestamp" json:"updated_at"`
+	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
 }
 
 func (r *Action) BeforeCreate(scope *gorm.Scope) error {
@@ -28,13 +28,21 @@ func (r *Action) BeforeCreate(scope *gorm.Scope) error {
 	return err
 }
 
-func (action *Action) GetValue() map[interface{}]interface{} {
-	v := make(map[interface{}]interface{}, 0)
-	data := []byte(action.Value)
-	json.Unmarshal(data, &v)
-	return v
+func (action *Action) GetID() string {
+	id := &uuid.UUID{}
+	copy(id[:], action.ID)
+	return id.String()
 }
 
-func (action *Action) GetKey() string {
-	return string(action.ID[:])
+func (action *Action) UnmarshalUUIDString(id string) {
+	uuid := &uuid.UUID{}
+	uuid.UnmarshalText([]byte(id))
+	binid, _ := uuid.MarshalBinary()
+	action.ID = binid
+}
+
+func (action *Action) GetCustomLinks(link string) jsonapi.Links {
+	links := make(jsonapi.Links)
+	links["current"] = link
+	return links
 }
