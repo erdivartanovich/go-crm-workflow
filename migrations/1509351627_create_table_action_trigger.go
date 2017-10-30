@@ -10,11 +10,11 @@ var (
 	create_table_action_trigger_1509351627 = migrate.Migration{
         ID: "1509351627",
         Migrate: func(tx *gorm.DB) error {
-            err := tx.CreateTable(&action.ActionTrigger{}).Error
+            err := tx.CreateTable(&actiontrigger.ActionTrigger{}).Error
             return err
         },
         Rollback: func(tx *gorm.DB) error {
-            err := tx.DropTableIfExists(&action.ActionTrigger{}).Error
+            err := tx.DropTableIfExists(&actiontrigger.ActionTrigger{}).Error
             return err
         },
     }

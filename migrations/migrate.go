@@ -9,5 +9,6 @@ var (
 		&create_table_workflows_1507565382,
 		&create_table_actions_1507579635,
 		&create_table_rules_1507635905,
+		&create_table_action_trigger_1509351627,
 	}
 )
