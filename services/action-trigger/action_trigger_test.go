@@ -25,7 +25,7 @@ func setup() {
 }
 
 func shutdown() {
-	service.Repo.db.Commit()
+	service.Repo.db.Rollback()
 	db.Engine.Close()
 }
 
