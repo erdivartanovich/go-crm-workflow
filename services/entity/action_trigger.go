@@ -9,7 +9,7 @@ import (
 
 type ActionTrigger struct {
 	ID          []byte    `gorm:"type:binary(16);primary_key" json:"-"`
-	ActionID   	uint64    `gorm:"type:binary(16);index" json:"-"`
+	ActionID   	[]byte    `gorm:"type:binary(16);index" json:"-"`
 	TargetField string    `gorm:"not null" json:"target_field"`
 	Min			string	  `gorm:"not null;default:'*'" json:"min"`
 	Hour		string	  `gorm:"not null;default:'*'" json:"hour"`
