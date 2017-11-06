@@ -79,7 +79,7 @@ func TestReadLog(t *testing.T) {
 	}
 	result, err := service.Read(model)
 	assert.Nil(t, err, "Error is nil")
-	assert.Equal(t, fixture.Name, result.Name, "It should be equal")
+	assert.Equal(t, fixture.ResourceName, result.ResourceName, "It should be equal")
 	assert.Equal(t, fixture.ID, result.ID, "It should be equal")
 }
 
@@ -89,7 +89,7 @@ func TestEditLog(t *testing.T) {
 	}
 
 	model := entity.WorkflowLog{
-		Name: "edited-test-seed-data",
+		ResourceName: "edited-test-seed-data",
 	}
 
 	result, err := service.Edit(fixture, model)
