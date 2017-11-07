@@ -35,6 +35,11 @@ func (action *Action) GetID() string {
 	return id.String()
 }
 
+func (action *Action) SetID(id string) error {
+	action.UnmarshalUUIDString(id)
+	return nil
+}
+
 func (action *Action) UnmarshalUUIDString(id string) {
 	uuid := &uuid.UUID{}
 	uuid.UnmarshalText([]byte(id))
