@@ -10,10 +10,10 @@ type ActionService struct {
 	Repo *ActionRepository
 }
 
-type SearchAdapter struct {
+type entity.SearchAdapter struct {
 }
 
-func (service *ActionService) Browse(adapter SearchAdapter) ([]*entity.Action, error) {
+func (service *ActionService) Browse(adapter entity.SearchAdapter) ([]*entity.Action, error) {
 	return service.Repo.SetAdapter(adapter).Find()
 }
 
@@ -68,7 +68,7 @@ func (service *ActionService) Delete(action entity.Action) (*entity.Action, erro
 	return service.Repo.Delete(action)
 }
 
-func (service *ActionService) Count(adapter SearchAdapter) (int, error) {
+func (service *ActionService) Count(adapter entity.SearchAdapter) (int, error) {
 	return service.Repo.SetAdapter(adapter).Count()
 }
 

@@ -11,12 +11,12 @@ import (
 
 type WorkflowRepostitory struct {
 	db      *gorm.DB
-	adapter *SearchAdapter
+	adapter *entity.SearchAdapter
 	where   *stack.Stack
 }
 
-func (repo *WorkflowRepostitory) SetAdapter(adapter SearchAdapter) *WorkflowRepostitory {
-	repo.adapter = &adapter
+func (repo *WorkflowRepostitory) SetAdapter(adapter *entity.SearchAdapter) *WorkflowRepostitory {
+	repo.adapter = adapter
 	return repo
 }
 
@@ -88,6 +88,15 @@ func (repo *WorkflowRepostitory) prepareDb() *gorm.DB {
 	for i := 0; i < count; i++ {
 		tx = tx.Where(repo.where.Pop())
 	}
+
+	limit := 10
+	offset := 0
+
+	if repo.adapter != nil {
+		limit = repo.adapter.Page.Limit
+		offset = repo.adapter.Page.Offset
+	}
+	tx = tx.Limit(limit).Offset(offset)
 	return tx
 }
 
@@ -97,7 +106,8 @@ func (repo *WorkflowRepostitory) ResetInstance() {
 
 func (repo *WorkflowRepostitory) Count() (int, error) {
 	count := 0
-	err := repo.prepareDb().Model(&entity.Workflow{}).Count(&count).Error
+	tx := repo.prepareDb().Limit(-1).Offset(-1)
+	err := tx.Model(&entity.Workflow{}).Count(&count).Error
 	return count, err
 }
 

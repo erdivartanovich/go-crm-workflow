@@ -8,10 +8,7 @@ type WorkflowService struct {
 	Repo *WorkflowRepostitory
 }
 
-type SearchAdapter struct {
-}
-
-func (service *WorkflowService) Browse(adapter SearchAdapter) ([]*entity.Workflow, error) {
+func (service *WorkflowService) Browse(adapter *entity.SearchAdapter) ([]*entity.Workflow, error) {
 	return service.Repo.SetAdapter(adapter).Find()
 }
 
@@ -65,7 +62,7 @@ func (service *WorkflowService) Delete(workflow entity.Workflow) (*entity.Workfl
 	return service.Repo.Delete(workflow)
 }
 
-func (service *WorkflowService) Count(adapter SearchAdapter) (int, error) {
+func (service *WorkflowService) Count(adapter *entity.SearchAdapter) (int, error) {
 	return service.Repo.SetAdapter(adapter).Count()
 }
 

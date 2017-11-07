@@ -6,12 +6,12 @@ type RuleService struct {
 	Repo *RuleRepository
 }
 
-type SearchAdapter struct {
+type entity.SearchAdapter struct {
 }
 
 // var repo = NewRuleRepository()
 
-func (service *RuleService) Browse(adapter SearchAdapter) ([]*entity.Rule, error) {
+func (service *RuleService) Browse(adapter entity.SearchAdapter) ([]*entity.Rule, error) {
 	return service.Repo.SetAdapter(adapter).Find()
 }
 
