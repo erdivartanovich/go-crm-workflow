@@ -1,6 +1,8 @@
 package entity
 
 import (
+	"bytes"
+	"fmt"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -18,14 +20,17 @@ type Filter struct {
 	Value     string
 }
 
+type Sort string
+
 type SearchAdapter struct {
 	Include string
 	Page    *Page
 	Filters []*Filter
+	Sort    Sort
 }
 
 func (a *SearchAdapter) FromURLValues(value url.Values) {
-	a.setFilter(value)
+	a.UnmarshalFilter(value)
 
 	limit, e := strconv.Atoi(value.Get("page[limit]"))
 	if e != nil {
@@ -42,11 +47,12 @@ func (a *SearchAdapter) FromURLValues(value url.Values) {
 		Offset: offset,
 	}
 
+	a.UnmarshalSort(value.Get("sort"))
 	a.Include = value.Get("include")
 
 }
 
-func (a *SearchAdapter) setFilter(value url.Values) {
+func (a *SearchAdapter) UnmarshalFilter(value url.Values) {
 	var Filters []*Filter
 	for name, value := range value {
 		if strings.HasPrefix(name, "filter") {
@@ -64,4 +70,21 @@ func (a *SearchAdapter) setFilter(value url.Values) {
 	}
 	a.Filters = Filters
 
+}
+
+func (a *SearchAdapter) UnmarshalSort(s string) {
+
+	sorts := strings.Split(s, ",")
+	var buff bytes.Buffer
+	for _, attrName := range sorts {
+		if len(buff.Bytes()) > 0 {
+			buff.WriteString(",")
+		}
+		if attrName[0:1] == "-" {
+			attrName = fmt.Sprintf("%s %s", attrName[1:], "desc")
+		}
+		buff.WriteString(attrName)
+	}
+
+	a.Sort = Sort(buff.String())
 }

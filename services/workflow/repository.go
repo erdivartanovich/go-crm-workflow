@@ -89,14 +89,42 @@ func (repo *WorkflowRepostitory) prepareDb() *gorm.DB {
 		tx = tx.Where(repo.where.Pop())
 	}
 
+	tx = repo.applySearchAdapter(tx)
+
+	return tx
+}
+
+func (repo *WorkflowRepostitory) applySearchAdapter(tx *gorm.DB) *gorm.DB {
+	if repo.adapter != nil {
+		tx = repo.applyFilters(tx)
+		tx = repo.applySorter(tx)
+		tx = repo.applyPager(tx)
+	}
+	return tx
+}
+
+func (repo *WorkflowRepostitory) applyPager(tx *gorm.DB) *gorm.DB {
 	limit := 10
 	offset := 0
-
-	if repo.adapter != nil {
+	if repo.adapter.Page != nil {
 		limit = repo.adapter.Page.Limit
 		offset = repo.adapter.Page.Offset
 	}
 	tx = tx.Limit(limit).Offset(offset)
+	return tx
+}
+
+func (repo *WorkflowRepostitory) applyFilters(tx *gorm.DB) *gorm.DB {
+	if repo.adapter.Filters != nil && len(repo.adapter.Filters) > 0 {
+
+	}
+	return tx
+}
+
+func (repo *WorkflowRepostitory) applySorter(tx *gorm.DB) *gorm.DB {
+	if repo.adapter.Sort != "" {
+		tx = tx.Order(string(repo.adapter.Sort))
+	}
 	return tx
 }
 
