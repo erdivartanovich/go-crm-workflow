@@ -61,3 +61,15 @@ func (ctrl *actionCtrl) Browse(r *http.Request) (api.Responder, error) {
 	}
 	return respond, err
 }
+
+func (ctrl *actionCtrl) Read(id string, r *http.Request) (api.Responder, error) {
+	service := ctrl.service
+	payload := &entity.Action{}
+	payload.SetID(id)
+	action, err := service.Read(*payload)
+
+	return &api.ApiResponder{
+		Data: action,
+		Code: 200,
+	}, err
+}
