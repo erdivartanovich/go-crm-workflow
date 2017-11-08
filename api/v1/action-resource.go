@@ -129,3 +129,42 @@ func (ctrl *actionCtrl) Edit(id string, r *http.Request) (api.Responder, error) 
 		Code: 200,
 	}, err
 }
+
+func (ctrl *actionCtrl) Add(r *http.Request) (api.Responder, error) {
+	payload := entity.Action{}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	err = jsonapi.Unmarshal(body, &payload)
+	if err != nil {
+
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	action, err := ctrl.service.Add(payload)
+
+	return &api.ApiResponder{
+		Data: action,
+		Code: 200,
+	}, err
+}
+
+func (ctrl *actionCtrl) Delete(id string, r *http.Request) (api.Responder, error) {
+	ac := entity.Action{}
+	ac.SetID(id)
+
+	_, err := ctrl.service.Delete(ac)
+
+	return &api.ApiResponder{
+		Data: nil,
+		Code: 204,
+	}, err
+}
