@@ -73,3 +73,59 @@ func (ctrl *actionCtrl) Read(id string, r *http.Request) (api.Responder, error) 
 		Code: 200,
 	}, err
 }
+
+func (ctrl *actionCtrl) Replace(id string, r *http.Request) (api.Responder, error) {
+	ac := entity.Action{}
+	ac.SetID(id)
+	payload := entity.Action{}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	err = jsonapi.Unmarshal(body, &payload)
+	if err != nil  {
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	updated, err := ctrl.service.Replace(ac, payload)
+
+	return &api.ApiResponder{
+		Data: updated,
+		Code: 200,
+	}, err
+}
+
+func (ctrl *actionCtrl) Edit(id string, r *http.Request) (api.Responder, error) {
+	ac := entity.Action{}
+	ac.SetID(id)
+	payload := entity.Action{}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	err = jsonapi.Unmarshal(body, &payload)
+	if err != nil {
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	updated, err := ctrl.service.Edit(ac, payload)
+
+	return &api.ApiResponder{
+		Data: updated,
+		Code: 200,
+	}, err
+}
