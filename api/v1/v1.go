@@ -6,4 +6,5 @@ import (
 
 func RegisterApi(r *api.Api) {
 	r.Resource("workflows", newWorkflowCtrl())
+	r.Resource("actions", newActionCtrl())
 }
