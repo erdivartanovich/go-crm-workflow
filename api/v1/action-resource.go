@@ -168,3 +168,41 @@ func (ctrl *actionCtrl) Delete(id string, r *http.Request) (api.Responder, error
 		Code: 204,
 	}, err
 }
+
+func (ctrl *actionCtrl) BatchAdd(r *http.Request) (api.Responder, error) {
+	var payloads []entity.Action
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	err = jsonapi.Unmarshal(body, &payloads)
+	if err != nil {
+
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	success, err := ctrl.service.BatchAdd(payloads)
+
+	return &api.ApiResponder{
+		Meta: map[string]interface{}{
+			"saved_count": success,
+		},
+		Data: nil,
+		Code: 200,
+	}, err
+}
+
+func (ctrl *actionCtrl) BatchEdit(r *http.Request) (api.Responder, error) {
+	return nil, nil
+}
+
+func (ctrl *actionCtrl) Destroy(r *http.Request) (api.Responder, error) {
+	return nil, nil
+}
