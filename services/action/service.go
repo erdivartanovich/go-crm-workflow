@@ -10,9 +10,6 @@ type ActionService struct {
 	Repo *ActionRepository
 }
 
-type entity.SearchAdapter struct {
-}
-
 func (service *ActionService) Browse(adapter entity.SearchAdapter) ([]*entity.Action, error) {
 	return service.Repo.SetAdapter(adapter).Find()
 }
