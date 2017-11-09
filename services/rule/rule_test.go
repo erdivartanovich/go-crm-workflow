@@ -51,7 +51,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestBrowse(t *testing.T) {
-	a := entity.SearchAdapter{}
+	a := &entity.SearchAdapter{}
 	result, err := service.Browse(a)
 	assert.Nil(t, err, "Error is nil")
 	assert.NotEmpty(t, result, "Data should not empty")
@@ -83,11 +83,15 @@ func TestReadRule(t *testing.T) {
 }
 
 func TestEditRule(t *testing.T) {
-	fixture := dbfixtures[0]
+	fixture := entity.Rule{
+		ID: dbfixtures[0].ID,
+	}
+
 	model := entity.Rule{
 		Name: "edited-test-seed-data",
 	}
-	result, err := service.Edit(*fixture, model)
+
+	result, err := service.Edit(fixture, model)
 	assert.Nil(t, err, "Error is nil")
 	assert.NotEqual(t, fixture.Name, result.Name, "It should not be equal")
 	assert.Equal(t, model.Name, result.Name, "It should be equal")
