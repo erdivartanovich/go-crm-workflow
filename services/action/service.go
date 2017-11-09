@@ -1,8 +1,6 @@
 package action
 
 import (
-	"fmt"
-
 	"github.com/kwri/go-workflow/services/entity"
 )
 
@@ -40,7 +38,7 @@ func (service *ActionService) BatchAdd(payloads []entity.Action) (int, error) {
 
 	go func() {
 		for i := range payloads {
-			fmt.Println("Lets save", i)
+
 			_, err := service.Add(payloads[i])
 			if err != nil {
 				ch <- false
@@ -48,7 +46,7 @@ func (service *ActionService) BatchAdd(payloads []entity.Action) (int, error) {
 			}
 			ch <- true
 		}
-		fmt.Println("closed")
+
 		close(ch)
 	}()
 	success := 0
