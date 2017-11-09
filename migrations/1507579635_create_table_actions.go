@@ -4,6 +4,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/kwri/go-workflow/modules/migrate"
 	"github.com/kwri/go-workflow/services/entity"
+	"github.com/kwri/go-workflow/services/entity/constant"
 )
 
 var (
@@ -14,52 +15,43 @@ var (
 			if err != nil {
 				return err
 			}
-			workflowSeeds1 := []entity.Workflow{
+			workflow := entity.Workflow{}
+			tx.First(&workflow)
+			workflows := []entity.Workflow{workflow}
+			seedData := []*entity.Action{
 				{
-					Name:   "Mailchimp New Year Discount Campaign",
-					UserID: 1,
+					Name:        "Mailchimp Discount Campaign",
+					TaskID:      "",
+					UserID:      1,
+					ActionType:  constant.ACTION_TYPE_MAILCHIMP,
+					TargetClass: "",
+					TargetField: "",
+					Value:       "",
+					Workflows:   workflows,
 				},
 				{
-					Name:   "Mailchimp Holiday Bonus Campaign",
-					UserID: 1,
-				},
-			}
-			workflowSeeds2 := []entity.Workflow{
-				{
-					Name:   "Mailchimp Promotion Campaign",
-					UserID: 1,
-				},
-				{
-					Name:   "Mailchimp New Discount Campaign",
-					UserID: 1,
-				},
-			}
-			actionSeeds := []*entity.Action{
-				{
-					Name: "Action 1",
-					UserID: 1,
-					ActionType: 1,
-					TaskID: "Task1",
-					Workflows: workflowSeeds1,
-				},
-				{
-					Name: "Action 2",
-					UserID: 1,
-					ActionType: 2,
-					TaskID: "Task1",
-					Workflows: workflowSeeds2,
+					Name:        "Mailchimp Birthday Bonus Campaign",
+					TaskID:      "",
+					UserID:      1,
+					ActionType:  constant.ACTION_TYPE_MAILCHIMP,
+					TargetClass: "",
+					TargetField: "",
+					Value:       "",
+					Workflows:   workflows,
 				},
 			}
 			db := tx.Begin()
-			for _, data := range actionSeeds {
+			for _, data := range seedData {
 				err = db.Create(data).Error
 				if err != nil {
 					db.Rollback()
 					return err
 				}
 			}
+
 			db.Commit()
 			return nil
+
 		},
 		Rollback: func(tx *gorm.DB) error {
 			err := tx.DropTableIfExists(&entity.Action{}).Error

@@ -9,14 +9,18 @@ import (
 	"github.com/kwri/go-workflow/services/entity"
 )
 
+var IncludeMap = map[string]string{
+	"actions": "Actions",
+}
+
 type WorkflowRepostitory struct {
 	db      *gorm.DB
-	adapter *SearchAdapter
+	adapter *entity.SearchAdapter
 	where   *stack.Stack
 }
 
-func (repo *WorkflowRepostitory) SetAdapter(adapter SearchAdapter) *WorkflowRepostitory {
-	repo.adapter = &adapter
+func (repo *WorkflowRepostitory) SetAdapter(adapter *entity.SearchAdapter) *WorkflowRepostitory {
+	repo.adapter = adapter
 	return repo
 }
 
@@ -88,6 +92,59 @@ func (repo *WorkflowRepostitory) prepareDb() *gorm.DB {
 	for i := 0; i < count; i++ {
 		tx = tx.Where(repo.where.Pop())
 	}
+
+	tx = repo.applySearchAdapter(tx)
+
+	return tx
+}
+
+func (repo *WorkflowRepostitory) applySearchAdapter(tx *gorm.DB) *gorm.DB {
+	if repo.adapter != nil {
+		tx = repo.applyInclude(tx)
+		tx = repo.applyFilters(tx)
+		tx = repo.applySorter(tx)
+		tx = repo.applyPager(tx)
+	}
+	return tx
+}
+
+func (repo *WorkflowRepostitory) applyInclude(tx *gorm.DB) *gorm.DB {
+
+	if repo.adapter.Include != nil && len(repo.adapter.Include) > 0 {
+
+		for _, resource := range repo.adapter.Include {
+
+			if val, ok := IncludeMap[resource]; ok {
+				tx = tx.Preload(val)
+			}
+		}
+	}
+
+	return tx
+}
+
+func (repo *WorkflowRepostitory) applyPager(tx *gorm.DB) *gorm.DB {
+	limit := 10
+	offset := 0
+	if repo.adapter.Page != nil {
+		limit = repo.adapter.Page.Limit
+		offset = repo.adapter.Page.Offset
+	}
+	tx = tx.Limit(limit).Offset(offset)
+	return tx
+}
+
+func (repo *WorkflowRepostitory) applyFilters(tx *gorm.DB) *gorm.DB {
+	if repo.adapter.Filters != nil && len(repo.adapter.Filters) > 0 {
+
+	}
+	return tx
+}
+
+func (repo *WorkflowRepostitory) applySorter(tx *gorm.DB) *gorm.DB {
+	if repo.adapter.Sort != "" {
+		tx = tx.Order(string(repo.adapter.Sort))
+	}
 	return tx
 }
 
@@ -97,7 +154,8 @@ func (repo *WorkflowRepostitory) ResetInstance() {
 
 func (repo *WorkflowRepostitory) Count() (int, error) {
 	count := 0
-	err := repo.prepareDb().Model(&entity.Workflow{}).Count(&count).Error
+	tx := repo.prepareDb().Limit(-1).Offset(-1)
+	err := tx.Model(&entity.Workflow{}).Count(&count).Error
 	return count, err
 }
 

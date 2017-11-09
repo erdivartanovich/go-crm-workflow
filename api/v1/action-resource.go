@@ -1,14 +1,13 @@
 package v1
 
-
 import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
 
 	paginator "github.com/kwri/go-workflow/gorm-paginator"
-	"github.com/kwri/go-workflow/services/entity"
 	"github.com/kwri/go-workflow/services/action"
+	"github.com/kwri/go-workflow/services/entity"
 	api "github.com/kwri/go-workflow/vndapi"
 	"github.com/manyminds/api2go/jsonapi"
 )
@@ -25,7 +24,7 @@ func newActionCtrl() *actionCtrl {
 
 func (ctrl *actionCtrl) Browse(r *http.Request) (api.Responder, error) {
 	service := ctrl.service
-	adapter := action.SearchAdapter{}
+	adapter := entity.SearchAdapter{}
 	total, err := service.Count(adapter)
 	if err != nil {
 		total = 0
@@ -48,7 +47,7 @@ func (ctrl *actionCtrl) Browse(r *http.Request) (api.Responder, error) {
 	}
 	options := &paginator.Options{
 		QueryParameter: r.URL.Query(),
-		Path: 			r.URL.Path,
+		Path:           r.URL.Path,
 	}
 	var actions []*entity.Action
 	if total > 0 {
@@ -87,7 +86,7 @@ func (ctrl *actionCtrl) Replace(id string, r *http.Request) (api.Responder, erro
 	}
 
 	err = jsonapi.Unmarshal(body, &payload)
-	if err != nil  {
+	if err != nil {
 		return &api.ApiResponder{
 			Data: nil,
 			Code: 422,

@@ -51,7 +51,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestBrowse(t *testing.T) {
-	a := SearchAdapter{}
+	a := &entity.SearchAdapter{}
 	result, err := service.Browse(a)
 	assert.Nil(t, err, "Error is nil")
 	assert.NotEmpty(t, result, "Data should not empty")

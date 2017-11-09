@@ -3,8 +3,8 @@ package entity
 import (
 	"time"
 
-	"github.com/google/jsonapi"
 	"github.com/jinzhu/gorm"
+	"github.com/manyminds/api2go/jsonapi"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -45,8 +45,24 @@ func (workflow *Workflow) UnmarshalUUIDString(id string) error {
 	return err
 }
 
-func (workflow *Workflow) GetCustomLinks(link string) jsonapi.Links {
-	links := make(jsonapi.Links)
-	links["current"] = link
-	return links
+func (workflow *Workflow) GetReferences() []jsonapi.Reference {
+	return []jsonapi.Reference{
+		{
+			Type: "action",
+			Name: "actions",
+		},
+	}
+}
+
+func (workflow *Workflow) GetReferencedIDs() []jsonapi.ReferenceID {
+	result := []jsonapi.ReferenceID{}
+	for _, id := range workflow.Actions {
+		result = append(result, jsonapi.ReferenceID{
+			ID:   id.GetID(),
+			Type: "action",
+			Name: "actions",
+		})
+	}
+
+	return result
 }

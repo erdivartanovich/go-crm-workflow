@@ -3,7 +3,6 @@ package entity
 import (
 	"time"
 
-	"github.com/google/jsonapi"
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 )
@@ -45,10 +44,4 @@ func (action *Action) UnmarshalUUIDString(id string) {
 	uuid.UnmarshalText([]byte(id))
 	binid, _ := uuid.MarshalBinary()
 	action.ID = binid
-}
-
-func (action *Action) GetCustomLinks(link string) jsonapi.Links {
-	links := make(jsonapi.Links)
-	links["current"] = link
-	return links
 }
