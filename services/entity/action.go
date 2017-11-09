@@ -17,7 +17,7 @@ type Action struct {
 	TargetClass string     `gorm:"not null" json:"target_class"`
 	TargetField string     `gorm:"not null" json:"target_field"`
 	Value       string     `gorm:"type:text" json:"value"`
-	Workflows   []Workflow `gorm:"many2many:workflow_actions;"`
+	Workflows   []Workflow `gorm:"many2many:workflow_actions;" json:"-"`
 	CreatedAt   time.Time  `gorm:"default:current_timestamp" json:"created_at"`
 	UpdatedAt   time.Time  `gorm:"default:current_timestamp on update current_timestamp" json:"updated_at"`
 	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
