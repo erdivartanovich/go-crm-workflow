@@ -3,73 +3,80 @@ package v1
 import (
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	paginator "github.com/kwri/go-workflow/gorm-paginator"
+	"github.com/kwri/go-workflow/services/action"
 	"github.com/kwri/go-workflow/services/entity"
-	"github.com/kwri/go-workflow/services/workflow"
 	api "github.com/kwri/go-workflow/vndapi"
 	"github.com/manyminds/api2go/jsonapi"
 )
 
-type workflowCtrl struct {
-	service *workflow.WorkflowService
+type actionCtrl struct {
+	service *action.ActionService
 }
 
-func newWorkflowCtrl() *workflowCtrl {
-	return &workflowCtrl{
-		service: workflow.NewWorkflowService(),
+func newActionCtrl() *actionCtrl {
+	return &actionCtrl{
+		service: action.NewActionService(),
 	}
 }
 
-func (ctrl *workflowCtrl) Browse(r *http.Request) (api.Responder, error) {
+func (ctrl *actionCtrl) Browse(r *http.Request) (api.Responder, error) {
 	service := ctrl.service
-	adapter := &entity.SearchAdapter{}
-	adapter.FromURLValues(r.URL.Query())
+	adapter := entity.SearchAdapter{}
 	total, err := service.Count(adapter)
-
 	if err != nil {
 		total = 0
 	}
-
-	limit := adapter.Page.Limit
-	offset := adapter.Page.Offset
+	qlimit := r.URL.Query().Get("page[limit]")
+	limit := 10
+	if qlimit != "" {
+		val, e := strconv.Atoi(qlimit)
+		if e == nil {
+			limit = val
+		}
+	}
+	qoffset := r.URL.Query().Get("page[offset]")
+	offset := 0
+	if qoffset != "" {
+		val, e := strconv.Atoi(qoffset)
+		if e == nil {
+			offset = val
+		}
+	}
 	options := &paginator.Options{
 		QueryParameter: r.URL.Query(),
 		Path:           r.URL.Path,
 	}
-
-	var workflows []*entity.Workflow
-
+	var actions []*entity.Action
 	if total > 0 {
-		workflows, err = service.Browse(adapter)
+		actions, err = service.Browse(adapter)
 	}
-
-	paginator := paginator.NewLengthAwareOffsetPaginator(workflows, total, limit, offset, options)
-
+	paginator := paginator.NewLengthAwareOffsetPaginator(actions, total, limit, offset, options)
 	respond := &api.ApiResponder{
 		Data: paginator,
 		Code: 200,
 	}
-
 	return respond, err
 }
 
-func (ctrl *workflowCtrl) Read(id string, r *http.Request) (api.Responder, error) {
+func (ctrl *actionCtrl) Read(id string, r *http.Request) (api.Responder, error) {
 	service := ctrl.service
-	payload := &entity.Workflow{}
+	payload := &entity.Action{}
 	payload.SetID(id)
-	workflow, err := service.Read(*payload)
+	action, err := service.Read(*payload)
 
 	return &api.ApiResponder{
-		Data: workflow,
+		Data: action,
 		Code: 200,
 	}, err
 }
 
-func (ctrl *workflowCtrl) Replace(id string, r *http.Request) (api.Responder, error) {
-	wk := entity.Workflow{}
-	wk.SetID(id)
-	payload := entity.Workflow{}
+func (ctrl *actionCtrl) Replace(id string, r *http.Request) (api.Responder, error) {
+	ac := entity.Action{}
+	ac.SetID(id)
+	payload := entity.Action{}
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return &api.ApiResponder{
@@ -86,7 +93,7 @@ func (ctrl *workflowCtrl) Replace(id string, r *http.Request) (api.Responder, er
 		}, err
 	}
 
-	updated, err := ctrl.service.Replace(wk, payload)
+	updated, err := ctrl.service.Replace(ac, payload)
 
 	return &api.ApiResponder{
 		Data: updated,
@@ -94,10 +101,10 @@ func (ctrl *workflowCtrl) Replace(id string, r *http.Request) (api.Responder, er
 	}, err
 }
 
-func (ctrl *workflowCtrl) Edit(id string, r *http.Request) (api.Responder, error) {
-	wk := entity.Workflow{}
-	wk.SetID(id)
-	payload := entity.Workflow{}
+func (ctrl *actionCtrl) Edit(id string, r *http.Request) (api.Responder, error) {
+	ac := entity.Action{}
+	ac.SetID(id)
+	payload := entity.Action{}
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return &api.ApiResponder{
@@ -114,7 +121,7 @@ func (ctrl *workflowCtrl) Edit(id string, r *http.Request) (api.Responder, error
 		}, err
 	}
 
-	updated, err := ctrl.service.Edit(wk, payload)
+	updated, err := ctrl.service.Edit(ac, payload)
 
 	return &api.ApiResponder{
 		Data: updated,
@@ -122,8 +129,8 @@ func (ctrl *workflowCtrl) Edit(id string, r *http.Request) (api.Responder, error
 	}, err
 }
 
-func (ctrl *workflowCtrl) Add(r *http.Request) (api.Responder, error) {
-	payload := entity.Workflow{}
+func (ctrl *actionCtrl) Add(r *http.Request) (api.Responder, error) {
+	payload := entity.Action{}
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return &api.ApiResponder{
@@ -141,19 +148,19 @@ func (ctrl *workflowCtrl) Add(r *http.Request) (api.Responder, error) {
 		}, err
 	}
 
-	workflow, err := ctrl.service.Add(payload)
+	action, err := ctrl.service.Add(payload)
 
 	return &api.ApiResponder{
-		Data: workflow,
+		Data: action,
 		Code: 200,
 	}, err
 }
 
-func (ctrl *workflowCtrl) Delete(id string, r *http.Request) (api.Responder, error) {
-	wk := entity.Workflow{}
-	wk.SetID(id)
+func (ctrl *actionCtrl) Delete(id string, r *http.Request) (api.Responder, error) {
+	ac := entity.Action{}
+	ac.SetID(id)
 
-	_, err := ctrl.service.Delete(wk)
+	_, err := ctrl.service.Delete(ac)
 
 	return &api.ApiResponder{
 		Data: nil,
@@ -161,8 +168,8 @@ func (ctrl *workflowCtrl) Delete(id string, r *http.Request) (api.Responder, err
 	}, err
 }
 
-func (ctrl *workflowCtrl) BatchAdd(r *http.Request) (api.Responder, error) {
-	var payloads []entity.Workflow
+func (ctrl *actionCtrl) BatchAdd(r *http.Request) (api.Responder, error) {
+	var payloads []entity.Action
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return &api.ApiResponder{
@@ -191,10 +198,10 @@ func (ctrl *workflowCtrl) BatchAdd(r *http.Request) (api.Responder, error) {
 	}, err
 }
 
-func (ctrl *workflowCtrl) BatchEdit(r *http.Request) (api.Responder, error) {
+func (ctrl *actionCtrl) BatchEdit(r *http.Request) (api.Responder, error) {
 	return nil, nil
 }
 
-func (ctrl *workflowCtrl) Destroy(r *http.Request) (api.Responder, error) {
+func (ctrl *actionCtrl) Destroy(r *http.Request) (api.Responder, error) {
 	return nil, nil
 }
