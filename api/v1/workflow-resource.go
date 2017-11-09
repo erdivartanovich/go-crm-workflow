@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -43,7 +44,7 @@ func (ctrl *workflowCtrl) Browse(r *http.Request) (api.Responder, error) {
 	if total > 0 {
 		workflows, err = service.Browse(adapter)
 	}
-
+	fmt.Println(workflows[0].Actions)
 	paginator := paginator.NewLengthAwareOffsetPaginator(workflows, total, limit, offset, options)
 
 	respond := &api.ApiResponder{

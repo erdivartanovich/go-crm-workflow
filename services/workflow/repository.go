@@ -9,6 +9,10 @@ import (
 	"github.com/kwri/go-workflow/services/entity"
 )
 
+var IncludeMap = map[string]string{
+	"actions": "Actions",
+}
+
 type WorkflowRepostitory struct {
 	db      *gorm.DB
 	adapter *entity.SearchAdapter
@@ -96,10 +100,26 @@ func (repo *WorkflowRepostitory) prepareDb() *gorm.DB {
 
 func (repo *WorkflowRepostitory) applySearchAdapter(tx *gorm.DB) *gorm.DB {
 	if repo.adapter != nil {
+		tx = repo.applyInclude(tx)
 		tx = repo.applyFilters(tx)
 		tx = repo.applySorter(tx)
 		tx = repo.applyPager(tx)
 	}
+	return tx
+}
+
+func (repo *WorkflowRepostitory) applyInclude(tx *gorm.DB) *gorm.DB {
+
+	if repo.adapter.Include != nil && len(repo.adapter.Include) > 0 {
+
+		for _, resource := range repo.adapter.Include {
+
+			if val, ok := IncludeMap[resource]; ok {
+				tx = tx.Preload(val)
+			}
+		}
+	}
+
 	return tx
 }
 

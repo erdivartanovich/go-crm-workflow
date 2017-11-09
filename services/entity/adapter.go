@@ -23,7 +23,7 @@ type Filter struct {
 type Sort string
 
 type SearchAdapter struct {
-	Include string
+	Include []string
 	Page    *Page
 	Filters []*Filter
 	Sort    Sort
@@ -48,7 +48,7 @@ func (a *SearchAdapter) FromURLValues(value url.Values) {
 	}
 
 	a.UnmarshalSort(value.Get("sort"))
-	a.Include = value.Get("include")
+	a.UnmarshalInclude(value.Get("include"))
 
 }
 
@@ -76,15 +76,27 @@ func (a *SearchAdapter) UnmarshalSort(s string) {
 
 	sorts := strings.Split(s, ",")
 	var buff bytes.Buffer
-	for _, attrName := range sorts {
-		if len(buff.Bytes()) > 0 {
-			buff.WriteString(",")
+
+	if len(sorts) > 0 {
+		for _, attrName := range sorts {
+			if attrName != "" {
+				if len(buff.Bytes()) > 0 {
+					buff.WriteString(",")
+				}
+
+				if attrName[0:1] == "-" {
+					attrName = fmt.Sprintf("%s %s", attrName[1:], "desc")
+				}
+
+				buff.WriteString(attrName)
+			}
 		}
-		if attrName[0:1] == "-" {
-			attrName = fmt.Sprintf("%s %s", attrName[1:], "desc")
-		}
-		buff.WriteString(attrName)
 	}
 
 	a.Sort = Sort(buff.String())
+}
+
+func (a *SearchAdapter) UnmarshalInclude(s string) {
+
+	a.Include = strings.Split(s, ",")
 }
