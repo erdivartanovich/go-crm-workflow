@@ -10,10 +10,16 @@ import (
 
 type Rule struct {
 	ID         []byte     `gorm:"type:binary(16);primary_key" json:"-"`
+	ParentID   []byte     `gorm:"type:binary(16);index" json:"-"`
 	WorkflowID []byte     `gorm:"type:binary(16);index" json:"-"`
 	UserID     uint       `gorm:"unsigned;unique_index:rules_name_user_id" json:"-"`
 	Name       string     `gorm:"not null;unique_index:rules_name_user_id" json:"name"`
-	Actions    []Action   `gorm:"many2many:rule_action;" json:"actions"`
+	RuleType   int        `gorm:"type:tinyint(1);not null" json:"rule_type"`
+	FieldName  string     `gorm:"not null" json:"field_name"`
+	Operator   int        `gorm:"type:tinyint(4);not null" json:"operator"`
+	Value      string     `gorm:"not null" json:"value"`
+	Priority   int        `gorm:"not null;type:tinyint(4)" json:"priority"`
+	Actions    []Action   `gorm:"many2many:rule_action;" json:"-"`
 	CreatedAt  time.Time  `gorm:"default:current_timestamp" json:"created_at"`
 	UpdatedAt  time.Time  `gorm:"default:current_timestamp on update current_timestamp" json:"updated_at"`
 	DeletedAt  *time.Time `json:"deleted_at,omitempty"`
