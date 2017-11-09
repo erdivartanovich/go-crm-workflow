@@ -14,22 +14,44 @@ var (
 			if err != nil {
 				return err
 			}
-			seedData := []*entity.Action{
+			workflowSeeds1 := []entity.Workflow{
+				{
+					Name:   "Mailchimp New Year Discount Campaign",
+					UserID: 1,
+				},
+				{
+					Name:   "Mailchimp Holiday Bonus Campaign",
+					UserID: 1,
+				},
+			}
+			workflowSeeds2 := []entity.Workflow{
+				{
+					Name:   "Mailchimp Promotion Campaign",
+					UserID: 1,
+				},
+				{
+					Name:   "Mailchimp New Discount Campaign",
+					UserID: 1,
+				},
+			}
+			actionSeeds := []*entity.Action{
 				{
 					Name: "Action 1",
 					UserID: 1,
 					ActionType: 1,
-					TaskID: "Task1", 
+					TaskID: "Task1",
+					Workflows: workflowSeeds1,
 				},
 				{
 					Name: "Action 2",
 					UserID: 1,
 					ActionType: 2,
-					TaskID: "Task1", 
+					TaskID: "Task1",
+					Workflows: workflowSeeds2,
 				},
 			}
 			db := tx.Begin()
-			for _, data := range seedData {
+			for _, data := range actionSeeds {
 				err = db.Create(data).Error
 				if err != nil {
 					db.Rollback()
