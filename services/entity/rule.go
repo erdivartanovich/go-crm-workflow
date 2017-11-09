@@ -36,6 +36,11 @@ func (rule *Rule) GetID() string {
 	return id.String()
 }
 
+func (rule *Rule) SetID(id string) error {
+	rule.UnmarshalUUIDString(id)
+	return nil
+}
+
 func (rule *Rule) UnmarshalUUIDString(id string) {
 	uuid := &uuid.UUID{}
 	uuid.UnmarshalText([]byte(id))
