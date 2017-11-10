@@ -54,7 +54,7 @@ func (ctrl *ruleCtrl) Browse(r *http.Request) (api.Responder, error) {
 	return respond, err
 }
 
-func (ctrl ruleCtrl) Read(id string, r *http.Request) (api.Responder, error) {
+func (ctrl *ruleCtrl) Read(id string, r *http.Request) (api.Responder, error) {
 	service := ctrl.service
 	payload := &entity.Rule{}
 	payload.SetID(id)
@@ -69,7 +69,7 @@ func (ctrl ruleCtrl) Read(id string, r *http.Request) (api.Responder, error) {
 	return respond, err
 }
 
-func (ctrl ruleCtrl) Replace(id string, r *http.Request) (api.Responder, error) {
+func (ctrl *ruleCtrl) Replace(id string, r *http.Request) (api.Responder, error) {
 	rule := entity.Rule{}
 	rule.SetID(id)
 	payload := entity.Rule{}
@@ -98,4 +98,113 @@ func (ctrl ruleCtrl) Replace(id string, r *http.Request) (api.Responder, error) 
 	}
 
 	return respond, err
+}
+
+func (ctrl *ruleCtrl) Edit(id string, r *http.Request) (api.Responder, error) {
+	rule := entity.Rule{}
+	rule.SetID(id)
+	payload := entity.Rule{}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	err = jsonapi.Unmarshal(body, &payload)
+	if err != nil {
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	updated, err := ctrl.service.Edit(rule, payload)
+
+	respond := &api.ApiResponder{
+		Data: updated,
+		Code: 200,
+	}
+
+	return respond, err
+}
+
+func (ctrl *ruleCtrl) Add(r *http.Request) (api.Responder, error) {
+	payload := entity.Rule{}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	err = jsonapi.Unmarshal(body, &payload)
+	if err != nil {
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	rule, err := ctrl.service.Add(payload)
+
+	respond := &api.ApiResponder{
+		Data: rule,
+		Code: 200,
+	}
+
+	return respond, err
+}
+
+func (ctrl *ruleCtrl) Delete(id string, r *http.Request) (api.Responder, error) {
+	wk := entity.Rule{}
+	wk.SetID(id)
+
+	_, err := ctrl.service.Delete(wk)
+
+	return &api.ApiResponder{
+		Data: nil,
+		Code: 204,
+	}, err
+}
+
+func (ctrl *ruleCtrl) BatchAdd(r *http.Request) (api.Responder, error) {
+	var payloads []entity.Rule
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	err = jsonapi.Unmarshal(body, &payloads)
+	if err != nil {
+
+		return &api.ApiResponder{
+			Data: nil,
+			Code: 422,
+		}, err
+	}
+
+	success, err := ctrl.service.BatchAdd(payloads)
+
+	return &api.ApiResponder{
+		Meta: map[string]interface{}{
+			"saved_count": success,
+		},
+		Data: nil,
+		Code: 200,
+	}, err
+}
+
+func (ctrl *ruleCtrl) BatchEdit(r *http.Request) (api.Responder, error) {
+	return nil, nil
+}
+
+func (ctrl *ruleCtrl) Destroy(r *http.Request) (api.Responder, error) {
+	return nil, nil
 }
