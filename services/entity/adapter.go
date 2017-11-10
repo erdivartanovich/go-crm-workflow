@@ -7,6 +7,9 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/iancoleman/strcase"
+	"github.com/jinzhu/gorm"
 )
 
 type Page struct {
@@ -97,6 +100,57 @@ func (a *SearchAdapter) UnmarshalSort(s string) {
 }
 
 func (a *SearchAdapter) UnmarshalInclude(s string) {
-
+	if s == "" {
+		return
+	}
 	a.Include = strings.Split(s, ",")
+}
+
+func (adapter *SearchAdapter) ApplySearchAdapter(tx *gorm.DB) *gorm.DB {
+
+	tx = adapter.applyInclude(tx)
+	tx = adapter.applyFilters(tx)
+	tx = adapter.applySorter(tx)
+	tx = adapter.applyPager(tx)
+
+	return tx
+}
+
+func (adapter *SearchAdapter) applyInclude(tx *gorm.DB) *gorm.DB {
+
+	if len(adapter.Include) > 0 {
+
+		for _, resource := range adapter.Include {
+
+			tx = tx.Preload(strcase.ToCamel(resource))
+
+		}
+	}
+
+	return tx
+}
+
+func (adapter *SearchAdapter) applyPager(tx *gorm.DB) *gorm.DB {
+	limit := 10
+	offset := 0
+	if adapter.Page != nil {
+		limit = adapter.Page.Limit
+		offset = adapter.Page.Offset
+	}
+	tx = tx.Limit(limit).Offset(offset)
+	return tx
+}
+
+func (adapter *SearchAdapter) applyFilters(tx *gorm.DB) *gorm.DB {
+	if adapter.Filters != nil && len(adapter.Filters) > 0 {
+
+	}
+	return tx
+}
+
+func (adapter *SearchAdapter) applySorter(tx *gorm.DB) *gorm.DB {
+	if adapter.Sort != "" {
+		tx = tx.Order(string(adapter.Sort))
+	}
+	return tx
 }
