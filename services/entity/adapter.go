@@ -154,3 +154,9 @@ func (adapter *SearchAdapter) applySorter(tx *gorm.DB) *gorm.DB {
 	}
 	return tx
 }
+
+func ToSearchAdapter(val url.Values) *SearchAdapter {
+	adapter := &SearchAdapter{}
+	adapter.FromURLValues(val)
+	return adapter
+}
