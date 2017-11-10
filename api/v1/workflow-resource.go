@@ -23,8 +23,7 @@ func newWorkflowCtrl() *workflowCtrl {
 
 func (ctrl *workflowCtrl) Browse(r *http.Request) (api.Responder, error) {
 	service := ctrl.service
-	adapter := &entity.SearchAdapter{}
-	adapter.FromURLValues(r.URL.Query())
+	adapter := entity.ToSearchAdapter(r.URL.Query())
 	total, err := service.Count(adapter)
 
 	if err != nil {

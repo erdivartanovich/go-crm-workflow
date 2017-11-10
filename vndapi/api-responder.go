@@ -53,8 +53,7 @@ func (res *ApiResponder) WriteResponse(w http.ResponseWriter, err error, r *http
 	}
 
 	document, err := jsonapi.MarshalToStruct(items, &ServerInfo{
-		baseUrl: r.URL.String(),
-		prefix:  r.Host,
+		baseUrl: "v1/",
 	})
 
 	if err != nil {
