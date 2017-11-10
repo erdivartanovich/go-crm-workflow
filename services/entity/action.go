@@ -28,7 +28,7 @@ func (r *Action) BeforeCreate(scope *gorm.Scope) error {
 	return err
 }
 
-func (action *Action) GetID() string {
+func (action Action) GetID() string {
 	id := &uuid.UUID{}
 	copy(id[:], action.ID)
 	return id.String()

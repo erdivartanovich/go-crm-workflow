@@ -10,6 +10,7 @@ import (
 
 	"github.com/kwri/go-workflow/modules/db"
 	"github.com/kwri/go-workflow/modules/setting"
+	"github.com/kwri/go-workflow/services/entity"
 )
 
 var (

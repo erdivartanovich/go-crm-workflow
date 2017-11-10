@@ -46,23 +46,34 @@ func (workflow *Workflow) UnmarshalUUIDString(id string) error {
 }
 
 func (workflow *Workflow) GetReferences() []jsonapi.Reference {
-	return []jsonapi.Reference{
-		{
-			Type: "action",
+
+	ref := make([]jsonapi.Reference, 1)
+
+	if workflow.Actions != nil {
+		ref[0] = jsonapi.Reference{
+			Type: "actions",
 			Name: "actions",
-		},
+		}
 	}
+	return ref
 }
 
 func (workflow *Workflow) GetReferencedIDs() []jsonapi.ReferenceID {
-	result := []jsonapi.ReferenceID{}
-	for _, id := range workflow.Actions {
-		result = append(result, jsonapi.ReferenceID{
-			ID:   id.GetID(),
-			Type: "action",
+	result := make([]jsonapi.ReferenceID, len(workflow.Actions))
+	for i, d := range workflow.Actions {
+		result[i] = jsonapi.ReferenceID{
+			ID:   d.GetID(),
+			Type: "actions",
 			Name: "actions",
-		})
+		}
 	}
-
 	return result
+}
+
+func (workflow *Workflow) GetReferencedStructs() []jsonapi.MarshalIdentifier {
+	action := make([]jsonapi.MarshalIdentifier, len(workflow.Actions))
+	for i, d := range workflow.Actions {
+		action[i] = &d
+	}
+	return action
 }

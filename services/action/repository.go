@@ -85,6 +85,11 @@ func (repo *ActionRepository) prepareDb() *gorm.DB {
 	for i := 0; i < count; i++ {
 		tx = tx.Where(repo.where.Pop())
 	}
+
+	if repo.adapter != nil {
+		tx = repo.adapter.ApplySearchAdapter(tx)
+	}
+
 	return tx
 }
 
