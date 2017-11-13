@@ -90,60 +90,15 @@ func (repo *RuleRepository) Delete(rule entity.Rule) (*entity.Rule, error) {
 func (repo *RuleRepository) prepareDb() *gorm.DB {
 	count := repo.where.Len()
 	tx := repo.db
+
 	for i := 0; i < count; i++ {
 		tx = tx.Where(repo.where.Pop())
 	}
 
-	tx = repo.applySearchAdapter(tx)
-
-	return tx
-}
-
-func (repo *RuleRepository) applySearchAdapter(tx *gorm.DB) *gorm.DB {
 	if repo.adapter != nil {
-		tx = repo.applyInclude(tx)
-		tx = repo.applyFilters(tx)
-		tx = repo.applySorter(tx)
-		tx = repo.applyPager(tx)
-	}
-	return tx
-}
-
-func (repo *RuleRepository) applyInclude(tx *gorm.DB) *gorm.DB {
-	if repo.adapter.Include != nil && len(repo.adapter.Include) > 0 {
-
-		for _, resource := range repo.adapter.Include {
-
-			if val, ok := IncludeMap[resource]; ok {
-				tx = tx.Preload(val)
-			}
-		}
+		tx = repo.adapter.ApplySearchAdapter(tx)
 	}
 
-	return tx
-}
-
-func (repo *RuleRepository) applyFilters(tx *gorm.DB) *gorm.DB {
-	return tx
-}
-
-func (repo *RuleRepository) applySorter(tx *gorm.DB) *gorm.DB {
-	if repo.adapter.Sort != "" {
-		tx = tx.Order(string(repo.adapter.Sort))
-	}
-	return tx
-}
-
-func (repo *RuleRepository) applyPager(tx *gorm.DB) *gorm.DB {
-	limit := 10
-	offset := 0
-
-	if repo.adapter.Page != nil {
-		limit = repo.adapter.Page.Limit
-		offset = repo.adapter.Page.Offset
-	}
-
-	tx = tx.Limit(limit).Offset(offset)
 	return tx
 }
 
