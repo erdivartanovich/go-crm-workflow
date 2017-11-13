@@ -44,6 +44,7 @@ func (repo *RuleRepository) First() (*entity.Rule, error) {
 }
 
 func (repo *RuleRepository) Update(rule entity.Rule, payload entity.Rule) (*entity.Rule, error) {
+	payload.ID = rule.ID
 	err := repo.prepareDb().Model(&rule).Update(payload).Error
 	repo.ResetInstance()
 	return &rule, err

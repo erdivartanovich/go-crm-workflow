@@ -40,6 +40,7 @@ func (repo *TaskRepository) First() (*entity.Task, error) {
 }
 
 func (repo *TaskRepository) Update(task entity.Task, payload entity.Task) (*entity.Task, error) {
+	payload.ID = task.ID
 	err := repo.prepareDb().Model(&task).Update(payload).Error
 	repo.ResetInstance()
 	return &task, err

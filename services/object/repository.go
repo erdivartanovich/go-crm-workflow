@@ -45,7 +45,7 @@ func (repo *WorkflowObjectRepository) First() (*entity.WorkflowObject, error) {
 }
 
 func (repo *WorkflowObjectRepository) Update(workflow entity.WorkflowObject, payload entity.WorkflowObject) (*entity.WorkflowObject, error) {
-
+	payload.ID = workflow.ID
 	err := repo.prepareDb().Model(&workflow).Update(payload).Error
 	repo.ResetInstance()
 	return &workflow, err

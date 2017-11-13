@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/kwri/go-workflow/modules/db"
 	"github.com/manyminds/api2go/jsonapi"
 	uuid "github.com/satori/go.uuid"
 )
@@ -113,4 +114,25 @@ func (workflow *Workflow) GetReferencedStructs() []jsonapi.MarshalIdentifier {
 	}
 
 	return refs
+}
+
+func (w *Workflow) SetToOneReferenceID(name, ID string) error {
+	return nil
+}
+
+func (w *Workflow) SetToManyReferenceIDs(name string, IDs []string) error {
+	if len(IDs) <= 0 {
+		return nil
+	}
+
+	if name == "rules" {
+		w.Rules = make([]Rule, len(IDs))
+		for i, ID := range IDs {
+			w.Rules[i] = Rule{}
+			w.Rules[i].SetID(ID)
+			db.Engine.Find(&w.Rules[i])
+		}
+		return nil
+	}
+	return nil
 }
