@@ -24,30 +24,30 @@ type Task struct {
 	UpdatedAt           time.Time  `gorm:"default:current_timestamp on update current_timestamp" json:"updated_at"`
 	DeletedAt           *time.Time `json:"deleted_at,omitempty"`
 	Status              int        `gorm:"type:smallint(6)" json:"status"`
-	PermanenttDeletedAt time.Time  `json:"permanent_deleted_at,omitempty"`
+	PermanenttDeletedAt *time.Time `json:"permanent_deleted_at,omitempty"`
 	MinimumCompletion   uint       `gorm:"unsigned;index" json:"-"`
 }
 
-func (r *Task) BeforeCreate(scope *gorm.Scope) error {
+func (t *Task) BeforeCreate(scope *gorm.Scope) error {
 	uuid, err := uuid.NewV4().MarshalBinary()
 	scope.SetColumn("ID", uuid)
 	return err
 }
 
-func (rule *Task) GetID() string {
+func (task *Task) GetID() string {
 	id := &uuid.UUID{}
-	copy(id[:], rule.ID)
+	copy(id[:], task.ID)
 	return id.String()
 }
 
-func (rule *Task) SetID(id string) error {
-	rule.UnmarshalUUIDString(id)
+func (task *Task) SetID(id string) error {
+	task.UnmarshalUUIDString(id)
 	return nil
 }
 
-func (rule *Task) UnmarshalUUIDString(id string) {
+func (task *Task) UnmarshalUUIDString(id string) {
 	uuid := &uuid.UUID{}
 	uuid.UnmarshalText([]byte(id))
 	binid, _ := uuid.MarshalBinary()
-	rule.ID = binid
+	task.ID = binid
 }
