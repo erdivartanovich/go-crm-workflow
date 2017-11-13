@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/manyminds/api2go/jsonapi"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -18,7 +19,7 @@ type Rule struct {
 	Operator   int        `gorm:"type:tinyint(4);not null" json:"operator"`
 	Value      string     `gorm:"not null" json:"value"`
 	Priority   int        `gorm:"not null;type:tinyint(4)" json:"priority"`
-	Actions    []Action   `gorm:"many2many:rule_action;" json:"-"`
+	Actions    []Action   `gorm:"many2many:rule_actions;" json:"-"`
 	CreatedAt  time.Time  `gorm:"default:current_timestamp" json:"created_at"`
 	UpdatedAt  time.Time  `gorm:"default:current_timestamp on update current_timestamp" json:"updated_at"`
 	DeletedAt  *time.Time `json:"deleted_at,omitempty"`
@@ -46,4 +47,38 @@ func (rule *Rule) UnmarshalUUIDString(id string) {
 	uuid.UnmarshalText([]byte(id))
 	binid, _ := uuid.MarshalBinary()
 	rule.ID = binid
+}
+
+func (rule *Rule) GetReferences() []jsonapi.Reference {
+	return nil
+}
+
+func (rule *Rule) GetReferencedIDs() []jsonapi.ReferenceID {
+	refs := make([]jsonapi.ReferenceID, GetRefsCount(rule.Actions))
+	idx := 0
+	for _, d := range rule.Actions {
+		refs[idx] = jsonapi.ReferenceID{
+			ID:   d.GetID(),
+			Type: "actions",
+			Name: "actions",
+		}
+		idx++
+	}
+
+	return refs
+}
+
+func (rule *Rule) GetReferencedStructs() []jsonapi.MarshalIdentifier {
+	refs := make(
+		[]jsonapi.MarshalIdentifier,
+		GetRefsCount(rule.Actions),
+	)
+	idx := 0
+
+	for _, d := range rule.Actions {
+		refs[idx] = d
+		idx++
+	}
+
+	return refs
 }
