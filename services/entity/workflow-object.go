@@ -14,7 +14,7 @@ type WorkflowObject struct {
 	WorkflowID  []byte     `gorm:"type:binary(16);index;not null" json:"-"`
 	ObjectClass string     `gorm:"not null" json:"object_class"`
 	ObjectType  string     `gorm:"not null" json:"object_type"`
-	Workflows   []Workflow `json:"-"`
+	Workflow    Workflow   `json:"-"`
 	CreatedAt   time.Time  `gorm:"default:current_timestamp" json:"created_at"`
 	UpdatedAt   time.Time  `gorm:"default:current_timestamp on update current_timestamp" json:"updated_at"`
 	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
@@ -52,17 +52,4 @@ func (o *WorkflowObject) GetReferences() []jsonapi.Reference {
 			Name: "workflows",
 		},
 	}
-}
-
-func (o *WorkflowObject) GetReferencedIDs() []jsonapi.ReferenceID {
-	result := []jsonapi.ReferenceID{}
-	for _, id := range o.Workflows {
-		result = append(result, jsonapi.ReferenceID{
-			ID:   id.GetID(),
-			Type: "workflow",
-			Name: "workflows",
-		})
-	}
-
-	return result
 }

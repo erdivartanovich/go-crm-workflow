@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"reflect"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -9,15 +10,16 @@ import (
 )
 
 type Workflow struct {
-	ID          []byte     `gorm:"type:binary(16);primary_key" json:"-"`
-	UserID      uint       `gorm:"unsigned;unique_index:workflows_name_user_id;index;not null" json:"-"`
-	Name        string     `gorm:"unique_index:workflows_name_user_id;not null" json:"name" json:"name"`
-	IsShared    bool       `gorm:"not null;default:0" json:"is_shared"`
-	IsActivated bool       `gorm:"not null;default:0" json:"is_activated"`
-	Actions     []Action   `gorm:"many2many:workflow_actions;" json:"-"`
-	CreatedAt   time.Time  `gorm:"default:current_timestamp" json:"created_at"`
-	UpdatedAt   time.Time  `gorm:"default:current_timestamp on update current_timestamp" json:"updated_at"`
-	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
+	ID              []byte           `gorm:"type:binary(16);primary_key" json:"-"`
+	UserID          uint             `gorm:"unsigned;unique_index:workflows_name_user_id;index;not null" json:"-"`
+	Name            string           `gorm:"unique_index:workflows_name_user_id;not null" json:"name" json:"name"`
+	IsShared        bool             `gorm:"not null;default:0" json:"is_shared"`
+	IsActivated     bool             `gorm:"not null;default:0" json:"is_activated"`
+	Actions         []Action         `gorm:"many2many:workflow_actions;" json:"-"`
+	WorkflowObjects []WorkflowObject `json:"-"`
+	CreatedAt       time.Time        `gorm:"default:current_timestamp" json:"created_at"`
+	UpdatedAt       time.Time        `gorm:"default:current_timestamp on update current_timestamp" json:"updated_at"`
+	DeletedAt       *time.Time       `json:"deleted_at,omitempty"`
 }
 
 func (w *Workflow) BeforeCreate(scope *gorm.Scope) error {
@@ -50,22 +52,62 @@ func (workflow *Workflow) GetReferences() []jsonapi.Reference {
 }
 
 func (workflow *Workflow) GetReferencedIDs() []jsonapi.ReferenceID {
-	result := make([]jsonapi.ReferenceID, len(workflow.Actions))
-	for i, d := range workflow.Actions {
-		result[i] = jsonapi.ReferenceID{
+	refs := make([]jsonapi.ReferenceID, GetRefsCount(workflow.Actions, workflow.WorkflowObjects))
+	idx := 0
+	for _, d := range workflow.Actions {
+		refs[idx] = jsonapi.ReferenceID{
 			ID:   d.GetID(),
 			Type: "actions",
 			Name: "actions",
 		}
+		idx++
 	}
-	return result
+
+	for _, d := range workflow.WorkflowObjects {
+		refs[idx] = jsonapi.ReferenceID{
+			ID:   d.GetID(),
+			Type: "workflow-objects",
+			Name: "workflow-objects",
+		}
+		idx++
+	}
+
+	return refs
 }
 
 func (workflow *Workflow) GetReferencedStructs() []jsonapi.MarshalIdentifier {
-	actions := make([]jsonapi.MarshalIdentifier, len(workflow.Actions))
-	for i, d := range workflow.Actions {
-		actions[i] = d
+	refs := make(
+		[]jsonapi.MarshalIdentifier,
+		GetRefsCount(workflow.Actions, workflow.WorkflowObjects),
+	)
+	idx := 0
+
+	for _, d := range workflow.Actions {
+		refs[idx] = d
+		idx++
 	}
 
-	return actions
+	for _, d := range workflow.WorkflowObjects {
+		refs[idx] = d
+		idx++
+	}
+
+	return refs
+}
+
+func GetRefsCount(args ...interface{}) int {
+	slices := reflect.ValueOf(args)
+	count := 0
+	if slices.Kind() == reflect.Slice {
+		for i := 0; i < slices.Len(); i++ {
+			objectSlices := reflect.ValueOf(slices.Index(i).Interface())
+			if objectSlices.Kind() == reflect.Slice {
+				count += objectSlices.Len()
+			} else if objectSlices.Kind() == reflect.Struct {
+				count++
+			}
+		}
+	}
+
+	return count
 }
