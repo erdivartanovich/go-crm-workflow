@@ -2,6 +2,7 @@ package log
 
 import (
 	"errors"
+
 	"github.com/golang-collections/collections/stack"
 	"github.com/jinzhu/gorm"
 	"github.com/kwri/go-workflow/modules/db"
@@ -39,6 +40,7 @@ func (repo *LogRepository) First() (*entity.WorkflowLog, error) {
 }
 
 func (repo *LogRepository) Update(workflowlog entity.WorkflowLog, payload entity.WorkflowLog) (*entity.WorkflowLog, error) {
+	payload.ID = workflowlog.ID
 	err := repo.prepareDb().Model(&workflowlog).Update(payload).Error
 	repo.ResetInstance()
 	return &workflowlog, err
@@ -97,7 +99,7 @@ func (repo *LogRepository) Count() (int, error) {
 func NewLogRepository() *LogRepository {
 	db := db.Engine
 	return &LogRepository{
-		db: db,
+		db:    db,
 		where: &stack.Stack{},
 	}
 }

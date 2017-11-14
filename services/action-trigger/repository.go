@@ -2,6 +2,7 @@ package actiontrigger
 
 import (
 	"errors"
+
 	"github.com/golang-collections/collections/stack"
 	"github.com/jinzhu/gorm"
 	"github.com/kwri/go-workflow/modules/db"
@@ -9,9 +10,9 @@ import (
 )
 
 type ActionTriggerRepository struct {
-	db 		*gorm.DB
+	db      *gorm.DB
 	adapter *SearchAdapter
-	where *stack.Stack
+	where   *stack.Stack
 }
 
 func (repo *ActionTriggerRepository) SetAdapter(adapter SearchAdapter) *ActionTriggerRepository {
@@ -39,6 +40,7 @@ func (repo *ActionTriggerRepository) First() (*entity.ActionTrigger, error) {
 }
 
 func (repo *ActionTriggerRepository) Update(actiontrigger entity.ActionTrigger, payload entity.ActionTrigger) (*entity.ActionTrigger, error) {
+	payload.ID = actiontrigger.ID
 	err := repo.prepareDb().Model(&actiontrigger).Update(payload).Error
 	repo.ResetInstance()
 	return &actiontrigger, err
@@ -66,7 +68,7 @@ func (repo *ActionTriggerRepository) Insert(actiontrigger entity.ActionTrigger) 
 	repo.ResetInstance()
 	return in, err
 }
-	
+
 func (repo *ActionTriggerRepository) Delete(actiontrigger entity.ActionTrigger) (*entity.ActionTrigger, error) {
 	in := &actiontrigger
 	if len(in.ID) == 0 {

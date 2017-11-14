@@ -66,6 +66,7 @@ func (ctrl *workflowCtrl) Read(id string, r *http.Request) (api.Responder, error
 }
 
 func (ctrl *workflowCtrl) Replace(id string, r *http.Request) (api.Responder, error) {
+
 	wk := entity.Workflow{}
 	wk.SetID(id)
 	payload := entity.Workflow{}
@@ -132,8 +133,8 @@ func (ctrl *workflowCtrl) Add(r *http.Request) (api.Responder, error) {
 	}
 
 	err = jsonapi.Unmarshal(body, &payload)
-	if err != nil {
 
+	if err != nil {
 		return &api.ApiResponder{
 			Data: nil,
 			Code: 422,
@@ -141,7 +142,7 @@ func (ctrl *workflowCtrl) Add(r *http.Request) (api.Responder, error) {
 	}
 
 	workflow, err := ctrl.service.Add(payload)
-
+	//
 	return &api.ApiResponder{
 		Data: workflow,
 		Code: 200,
