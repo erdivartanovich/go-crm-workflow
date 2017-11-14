@@ -11,12 +11,12 @@ import (
 
 type ActionTriggerRepository struct {
 	db      *gorm.DB
-	adapter *SearchAdapter
+	adapter *entity.SearchAdapter
 	where   *stack.Stack
 }
 
-func (repo *ActionTriggerRepository) SetAdapter(adapter SearchAdapter) *ActionTriggerRepository {
-	repo.adapter = &adapter
+func (repo *ActionTriggerRepository) SetAdapter(adapter *entity.SearchAdapter) *ActionTriggerRepository {
+	repo.adapter = adapter
 	return repo
 }
 

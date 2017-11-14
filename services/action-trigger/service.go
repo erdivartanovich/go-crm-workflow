@@ -2,6 +2,7 @@ package actiontrigger
 
 import (
 	"fmt"
+
 	"github.com/kwri/go-workflow/services/entity"
 )
 
@@ -9,10 +10,7 @@ type ActionTriggerService struct {
 	Repo *ActionTriggerRepository
 }
 
-type SearchAdapter struct {
-}
-
-func (service *ActionTriggerService) Browse(adapter SearchAdapter) ([]*entity.ActionTrigger, error) {
+func (service *ActionTriggerService) Browse(adapter *entity.SearchAdapter) ([]*entity.ActionTrigger, error) {
 	return service.Repo.SetAdapter(adapter).Find()
 }
 
@@ -67,7 +65,7 @@ func (service *ActionTriggerService) Delete(actiontrigger entity.ActionTrigger) 
 	return service.Repo.Delete(actiontrigger)
 }
 
-func (service *ActionTriggerService) Count(adapter SearchAdapter) (int, error) {
+func (service *ActionTriggerService) Count(adapter *entity.SearchAdapter) (int, error) {
 	return service.Repo.SetAdapter(adapter).Count()
 }
 

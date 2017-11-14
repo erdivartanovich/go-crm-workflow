@@ -1,16 +1,18 @@
 package actiontrigger
+
 import (
-	"github.com/stretchr/testify/assert"
 	"fmt"
 	"os"
+	"testing"
+
 	"github.com/kwri/go-workflow/modules/db"
 	"github.com/kwri/go-workflow/modules/setting"
 	"github.com/kwri/go-workflow/services/entity"
-	"testing"
- )
+	"github.com/stretchr/testify/assert"
+)
 
 var (
-	service *ActionTriggerService
+	service    *ActionTriggerService
 	dbfixtures []*entity.ActionTrigger
 )
 
@@ -20,7 +22,7 @@ func setup() {
 	db.Initialize()
 	service = NewActionTriggerService()
 	tx := service.Repo.db.Begin()
-	service.Repo.db = tx;
+	service.Repo.db = tx
 	seedTestData()
 }
 
@@ -32,7 +34,7 @@ func shutdown() {
 func seedTestData() {
 	for i := 1; i <= 10; i++ {
 		model := &entity.ActionTrigger{
-			Min:   fmt.Sprintf("test-seed-data-%d", i),
+			Min: fmt.Sprintf("test-seed-data-%d", i),
 		}
 		service.Repo.db.Create(model)
 		dbfixtures = append(dbfixtures, model)
@@ -47,7 +49,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestBrowse(t *testing.T) {
-	a := SearchAdapter{}
+	a := &entity.SearchAdapter{}
 	result, err := service.Browse(a)
 	assert.Nil(t, err, "Error is nil")
 	assert.NotEqual(t, result, "Data should not empty")

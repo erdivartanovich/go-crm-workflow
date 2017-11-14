@@ -10,4 +10,5 @@ func RegisterApi(r *api.Api) {
 	r.Resource("objects", newWorkflowObjectCtrl())
 	r.Resource("rules", newRuleCtrl())
 	r.Resource("tasks", newTaskCtrl())
+	r.Resource("triggers", newActionTriggerCtrl())
 }
